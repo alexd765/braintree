@@ -39,6 +39,31 @@ func TestCreateCustomer(t *testing.T) {
 	})
 }
 
+func TestDeleteCustomer(t *testing.T) {
+	t.Parallel()
+
+	t.Run("existing", func(t *testing.T) {
+		t.Parallel()
+
+		customer := &Customer{FirstName: "first"}
+		customer, err := bt.CreateCustomer(customer)
+		if err != nil {
+			t.Fatalf("unexpected err: %s", err)
+		}
+		if err := bt.DeleteCustomer(customer.ID); err != nil {
+			t.Errorf("unexpected err: %s", err)
+		}
+	})
+
+	t.Run("nonExisting", func(t *testing.T) {
+		t.Parallel()
+
+		if err := bt.DeleteCustomer("cus2"); err == nil || err.Error() != "404 Not Found" {
+			t.Errorf("got: %v, want: 404: Not Found", err)
+		}
+	})
+}
+
 func TestFindCustomer(t *testing.T) {
 	t.Parallel()
 

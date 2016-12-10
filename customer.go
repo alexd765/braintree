@@ -32,6 +32,11 @@ func (bt *Braintree) CreateCustomer(customer *Customer) (*Customer, error) {
 	return updatedCustomer, nil
 }
 
+// DeleteCustomer on braintree
+func (bt *Braintree) DeleteCustomer(id string) error {
+	return bt.execute(http.MethodDelete, "customers/"+id, nil, nil)
+}
+
 // FindCustomer with a given id on braintree
 func (bt *Braintree) FindCustomer(id string) (*Customer, error) {
 	customer := &Customer{}

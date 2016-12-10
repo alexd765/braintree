@@ -32,6 +32,9 @@ func (bt *Braintree) execute(method, path string, v interface{}, payload interfa
 	switch resp.StatusCode {
 
 	case http.StatusOK, http.StatusCreated:
+		if v == nil {
+			return nil
+		}
 		return xml.NewDecoder(resp.Body).Decode(v)
 
 	default:
