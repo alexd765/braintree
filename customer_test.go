@@ -8,6 +8,37 @@ import (
 
 var bt = New()
 
+func TestCreateCustomer(t *testing.T) {
+	t.Parallel()
+
+	t.Run("noID", func(t *testing.T) {
+		t.Parallel()
+		want := &Customer{FirstName: "first"}
+		got, err := bt.CreateCustomer(want)
+		if err != nil {
+			t.Errorf("unexpected err: %s", err)
+		}
+		if got.FirstName != want.FirstName {
+			t.Errorf("FirstName: got: %s, want: %s", got.FirstName, want.FirstName)
+		}
+		if got.ID == "" {
+			t.Errorf("ID: got empty, want nonempty")
+		}
+	})
+
+	t.Run("existing", func(t *testing.T) {
+		t.Parallel()
+		customer := &Customer{ID: "cus1", FirstName: "first"}
+		got, err := bt.CreateCustomer(customer)
+		if err == nil || err.Error() != "422 Unprocessable Entity" {
+			t.Errorf("got: %v, want: 422 Unprocessable Entity", err)
+		}
+		if got != nil {
+			t.Errorf("got: %+v, want: <nil>", got)
+		}
+	})
+}
+
 func TestFindCustomer(t *testing.T) {
 	t.Parallel()
 
@@ -27,8 +58,8 @@ func TestFindCustomer(t *testing.T) {
 		t.Parallel()
 
 		customer, err := bt.FindCustomer("cus2")
-		if err == nil || err.Error() != "404: not found" {
-			t.Errorf("got: %v, want: 404: not found", err)
+		if err == nil || err.Error() != "404 Not Found" {
+			t.Errorf("got: %v, want: 404: Not Found", err)
 		}
 		if customer != nil {
 			t.Errorf("got: %+v, want: <nil>", customer)
@@ -60,8 +91,8 @@ func TestUpdateCustomer(t *testing.T) {
 
 		customer := &Customer{ID: "cus2", Phone: random()}
 		got, err := bt.UpdateCustomer(customer)
-		if err == nil || err.Error() != "404: not found" {
-			t.Errorf("got: %v, want: 404: not found", err)
+		if err == nil || err.Error() != "404 Not Found" {
+			t.Errorf("got: %v, want: 404 Not Found", err)
 		}
 		if got != nil {
 			t.Errorf("got: %+v, want: <nil>", got)
@@ -73,8 +104,8 @@ func TestUpdateCustomer(t *testing.T) {
 
 		customer := &Customer{Phone: random()}
 		got, err := bt.UpdateCustomer(customer)
-		if err == nil || err.Error() != "404: not found" {
-			t.Errorf("got: %v, want: 404: not found", err)
+		if err == nil || err.Error() != "404 Not Found" {
+			t.Errorf("got: %v, want: 404 Not Found", err)
 		}
 		if got != nil {
 			t.Errorf("got: %+v, want: <nil>", got)

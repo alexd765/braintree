@@ -23,6 +23,15 @@ type Customer struct {
 	Website string `xml:"website,omitempty"`
 }
 
+// CreateCustomer on braintree
+func (bt *Braintree) CreateCustomer(customer *Customer) (*Customer, error) {
+	updatedCustomer := &Customer{}
+	if err := bt.execute(http.MethodPost, "customers", updatedCustomer, customer); err != nil {
+		return nil, err
+	}
+	return updatedCustomer, nil
+}
+
 // FindCustomer with a given id on braintree
 func (bt *Braintree) FindCustomer(id string) (*Customer, error) {
 	customer := &Customer{}

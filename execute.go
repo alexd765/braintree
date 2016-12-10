@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/xml"
 	"errors"
-	"fmt"
 	"net/http"
 )
 
@@ -35,10 +34,8 @@ func (bt *Braintree) execute(method, path string, v interface{}, payload interfa
 	case http.StatusOK, http.StatusCreated:
 		return xml.NewDecoder(resp.Body).Decode(v)
 
-	case http.StatusNotFound:
-		return errors.New("404: not found")
-
 	default:
-		return fmt.Errorf("unexpected error: %d: %s", resp.StatusCode, resp.Status)
+		// Todo: Parse api error response
+		return errors.New(resp.Status)
 	}
 }
