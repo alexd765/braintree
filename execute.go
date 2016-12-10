@@ -1,20 +1,27 @@
 package braintree
 
 import (
+	"bytes"
 	"encoding/xml"
 	"errors"
 	"fmt"
 	"net/http"
 )
 
-func (bt *Braintree) execute(method, path string, v interface{}) error {
+func (bt *Braintree) execute(method, path string, v interface{}, payload interface{}) error {
 
 	url := "https://" + bt.environment + ".braintreegateway.com/merchants/" + bt.merchantID + "/" + path
-	req, err := http.NewRequest(method, url, nil)
+	buf := new(bytes.Buffer)
+	if err := xml.NewEncoder(buf).Encode(payload); err != nil {
+		return err
+	}
+
+	req, err := http.NewRequest(method, url, buf)
 	if err != nil {
 		return err
 	}
 	req.Header.Set("X-ApiVersion", "4")
+	req.Header.Set("Content-Type", "application/xml")
 	req.SetBasicAuth(bt.publicKey, bt.privateKey)
 
 	resp, err := http.DefaultClient.Do(req)

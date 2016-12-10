@@ -1,7 +1,9 @@
 package braintree
 
-import "log"
-import "os"
+import (
+	"log"
+	"os"
+)
 
 // Braintree client
 type Braintree struct {
