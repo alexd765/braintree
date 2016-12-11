@@ -1,5 +1,7 @@
 package braintree
 
+import "net/http"
+
 // Address is a braintree address
 type Address struct {
 	Company            string `xml:"company,omitempty"`
@@ -18,4 +20,21 @@ type Address struct {
 	Region          string `xml:"region,omitempty"`
 	StreetAddress   string `xml:"street-address,omitempty"`
 	// UpdatedAt
+}
+
+// CreateAddress creates an address on braintree.
+// CustomerID is required.
+func (bt *Braintree) CreateAddress(address *Address) (*Address, error) {
+
+	// braintree only wants the customerID in the url and not in the payload
+	// workaround:
+	customerID := address.CustomerID
+	tempAddress := *address
+	tempAddress.CustomerID = ""
+
+	updatedAddress := &Address{}
+	if err := bt.execute(http.MethodPost, "customers/"+customerID+"/addresses", updatedAddress, &tempAddress); err != nil {
+		return nil, err
+	}
+	return updatedAddress, nil
 }
