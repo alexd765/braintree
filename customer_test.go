@@ -6,8 +6,6 @@ import (
 	"testing"
 )
 
-var bt = New()
-
 func TestCreateCustomer(t *testing.T) {
 	t.Parallel()
 
