@@ -4,7 +4,7 @@ import "net/http"
 
 //Customer is a braintree customer
 type Customer struct {
-	// Addresses
+	Addresses []Address `xml:"addresses>address,omitempty"`
 	// AndroidPayCards
 	// ApplePayCards
 	Company string `xml:"company,omitempty"`

@@ -77,6 +77,15 @@ func TestFindCustomer(t *testing.T) {
 		if customer == nil {
 			t.Error("customer unexpected nil")
 		}
+		if size := len(customer.Addresses); size != 2 {
+			t.Fatalf("addresses: got: %d, want: 2", size)
+		}
+		if gotLast := customer.Addresses[0].LastName; gotLast != "last" {
+			t.Errorf("got: %s, want: last", gotLast)
+		}
+		if gotLast2 := customer.Addresses[1].LastName; gotLast2 != "last2" {
+			t.Errorf("got: %s, want: last2", gotLast2)
+		}
 	})
 
 	t.Run("nonExisting", func(t *testing.T) {
