@@ -16,7 +16,7 @@ func TestCreateCustomer(t *testing.T) {
 		want := &Customer{FirstName: "first"}
 		got, err := bt.CreateCustomer(want)
 		if err != nil {
-			t.Errorf("unexpected err: %s", err)
+			t.Fatalf("unexpected err: %s", err)
 		}
 		if got.FirstName != want.FirstName {
 			t.Errorf("FirstName: got: %s, want: %s", got.FirstName, want.FirstName)
@@ -72,7 +72,7 @@ func TestFindCustomer(t *testing.T) {
 
 		customer, err := bt.FindCustomer("cus1")
 		if err != nil {
-			t.Errorf("unexpected err: %s", err)
+			t.Fatalf("unexpected err: %s", err)
 		}
 		if customer == nil {
 			t.Error("customer unexpected nil")
@@ -101,7 +101,7 @@ func TestUpdateCustomer(t *testing.T) {
 		want := &Customer{ID: "cus1", Phone: random()}
 		got, err := bt.UpdateCustomer(want)
 		if err != nil {
-			t.Errorf("unexpected err: %s", err)
+			t.Fatalf("unexpected err: %s", err)
 		}
 		if got == nil {
 			t.Fatal("customer unexpected nil")

@@ -10,12 +10,12 @@ type Customer struct {
 	Company string `xml:"company,omitempty"`
 	// CreatedAt `xml:"created-at"`
 	// CreditCards
-	// CustomFields `xml:"custom-fields"`
-	Email     string `xml:"email,omitempty"`
-	Fax       string `xml:"fax,omitempty"`
-	FirstName string `xml:"first-name,omitempty"`
-	ID        string `xml:"id,omitempty"`
-	LastName  string `xml:"last-name,omitempty"`
+	CustomFields CustomFields `xml:"custom-fields,omitempty"`
+	Email        string       `xml:"email,omitempty"`
+	Fax          string       `xml:"fax,omitempty"`
+	FirstName    string       `xml:"first-name,omitempty"`
+	ID           string       `xml:"id,omitempty"`
+	LastName     string       `xml:"last-name,omitempty"`
 	// PaymentMethods
 	// PaypalAccounts
 	Phone string `xml:"phone,omitempty"`
