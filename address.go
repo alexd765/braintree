@@ -34,15 +34,16 @@ type AddressGW struct {
 // CustomerID is required.
 func (agw AddressGW) Create(address *Address) (*Address, error) {
 
-	// braintree only wants the customerID in the url and not in the payload
-	// workaround:
-	customerID := address.CustomerID
-	tempAddress := *address
-	tempAddress.CustomerID = ""
-
-	updatedAddress := &Address{}
-	if err := agw.bt.execute(http.MethodPost, "customers/"+customerID+"/addresses", updatedAddress, &tempAddress); err != nil {
+	updated := &Address{}
+	if err := agw.bt.execute(http.MethodPost, "customers/"+address.CustomerID+"/addresses", updated, address.sanitize()); err != nil {
 		return nil, err
 	}
-	return updatedAddress, nil
+	return updated, nil
+}
+
+func (a Address) sanitize() Address {
+	a.CreatedAt = nil
+	a.CustomerID = ""
+	a.UpdatedAt = nil
+	return a
 }

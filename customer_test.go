@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"testing"
+	"time"
 )
 
 func TestCreateCustomer(t *testing.T) {
@@ -105,7 +106,7 @@ func TestUpdateCustomer(t *testing.T) {
 	t.Run("existing", func(t *testing.T) {
 		t.Parallel()
 
-		want := &Customer{ID: "cus1", Phone: random()}
+		want := &Customer{ID: "cus1", Phone: random(), CreatedAt: &time.Time{}}
 		got, err := bt.Customer().Update(want)
 		if err != nil {
 			t.Fatalf("unexpected err: %s", err)

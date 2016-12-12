@@ -33,11 +33,11 @@ type CustomerGW struct {
 
 // Create a Customer on braintree
 func (cgw CustomerGW) Create(customer *Customer) (*Customer, error) {
-	updatedCustomer := &Customer{}
-	if err := cgw.bt.execute(http.MethodPost, "customers", updatedCustomer, customer); err != nil {
+	updated := &Customer{}
+	if err := cgw.bt.execute(http.MethodPost, "customers", updated, customer.sanitized()); err != nil {
 		return nil, err
 	}
-	return updatedCustomer, nil
+	return updated, nil
 }
 
 // Delete a Customer on braintree
@@ -59,8 +59,14 @@ func (cgw CustomerGW) Find(id string) (*Customer, error) {
 // ID is required
 func (cgw CustomerGW) Update(customer *Customer) (*Customer, error) {
 	updatedCustomer := &Customer{}
-	if err := cgw.bt.execute(http.MethodPut, "customers/"+customer.ID, updatedCustomer, customer); err != nil {
+	if err := cgw.bt.execute(http.MethodPut, "customers/"+customer.ID, updatedCustomer, customer.sanitized()); err != nil {
 		return nil, err
 	}
 	return updatedCustomer, nil
+}
+
+func (c Customer) sanitized() Customer {
+	c.CreatedAt = nil
+	c.UpdatedAt = nil
+	return c
 }
