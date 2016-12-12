@@ -1,14 +1,17 @@
 package braintree
 
-import "net/http"
+import (
+	"net/http"
+	"time"
+)
 
 //Customer is a braintree customer
 type Customer struct {
 	Addresses []Address `xml:"addresses>address,omitempty"`
 	// AndroidPayCards
 	// ApplePayCards
-	Company string `xml:"company,omitempty"`
-	// CreatedAt `xml:"created-at"`
+	Company   string     `xml:"company,omitempty"`
+	CreatedAt *time.Time `xml:"created-at,omitempty"`
 	// CreditCards
 	CustomFields CustomFields `xml:"custom-fields,omitempty"`
 	Email        string       `xml:"email,omitempty"`
@@ -18,9 +21,9 @@ type Customer struct {
 	LastName     string       `xml:"last-name,omitempty"`
 	// PaymentMethods
 	// PaypalAccounts
-	Phone string `xml:"phone,omitempty"`
-	// UpdatedAt `xml:"updated-at"`
-	Website string `xml:"website,omitempty"`
+	Phone     string     `xml:"phone,omitempty"`
+	UpdatedAt *time.Time `xml:"updated-at,omitempty"`
+	Website   string     `xml:"website,omitempty"`
 }
 
 // CustomerGW is a Customer Gateway

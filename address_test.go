@@ -23,6 +23,8 @@ func TestCreateAddress(t *testing.T) {
 			t.Fatalf("unexpected err: %s", err)
 		}
 		address.ID = got.ID
+		address.CreatedAt = got.CreatedAt
+		address.UpdatedAt = got.UpdatedAt
 		if !reflect.DeepEqual(got, address) {
 			t.Errorf("got: %+v\nwant: %+v", got, address)
 		}

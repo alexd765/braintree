@@ -24,6 +24,8 @@ func TestIntegration(t *testing.T) {
 		t.Fatalf("unexpected err: %s", err)
 	}
 	cus1.ID = cus2.ID
+	cus1.CreatedAt = cus2.CreatedAt
+	cus1.UpdatedAt = cus2.UpdatedAt
 	if !reflect.DeepEqual(cus1, cus2) {
 		t.Errorf("got: %+v\nwant: %+v", cus2, cus1)
 	}
@@ -32,6 +34,7 @@ func TestIntegration(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected err: %s", err)
 	}
+	cus2.UpdatedAt = cus3.UpdatedAt
 	if !reflect.DeepEqual(cus2, cus3) {
 		t.Errorf("got: %+v\nwant: %+v", cus3, cus2)
 	}
