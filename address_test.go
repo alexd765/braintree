@@ -12,13 +12,13 @@ func TestCreateAddress(t *testing.T) {
 		t.Parallel()
 
 		customer := &Customer{FirstName: "test", LastName: "create address"}
-		customer, err := bt.CreateCustomer(customer)
+		customer, err := bt.Customer().Create(customer)
 		if err != nil {
 			t.Fatalf("unexpected err: %s", err)
 		}
 
 		address := &Address{CustomerID: customer.ID, StreetAddress: "street"}
-		got, err := bt.CreateAddress(address)
+		got, err := bt.Address().Create(address)
 		if err != nil {
 			t.Fatalf("unexpected err: %s", err)
 		}
@@ -32,7 +32,7 @@ func TestCreateAddress(t *testing.T) {
 		t.Parallel()
 
 		address := &Address{StreetAddress: "street"}
-		if _, err := bt.CreateAddress(address); err == nil || err.Error() != "404 Not Found" {
+		if _, err := bt.Address().Create(address); err == nil || err.Error() != "404 Not Found" {
 			t.Errorf("got: %v, want: 404 Not Found", err)
 		}
 	})

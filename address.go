@@ -22,9 +22,14 @@ type Address struct {
 	// UpdatedAt
 }
 
-// CreateAddress creates an address on braintree.
+// AddressGW is an Address Gateway
+type AddressGW struct {
+	bt *Braintree
+}
+
+// Create an address on braintree.
 // CustomerID is required.
-func (bt *Braintree) CreateAddress(address *Address) (*Address, error) {
+func (agw AddressGW) Create(address *Address) (*Address, error) {
 
 	// braintree only wants the customerID in the url and not in the payload
 	// workaround:
@@ -33,7 +38,7 @@ func (bt *Braintree) CreateAddress(address *Address) (*Address, error) {
 	tempAddress.CustomerID = ""
 
 	updatedAddress := &Address{}
-	if err := bt.execute(http.MethodPost, "customers/"+customerID+"/addresses", updatedAddress, &tempAddress); err != nil {
+	if err := agw.bt.execute(http.MethodPost, "customers/"+customerID+"/addresses", updatedAddress, &tempAddress); err != nil {
 		return nil, err
 	}
 	return updatedAddress, nil
