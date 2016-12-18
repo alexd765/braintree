@@ -42,6 +42,15 @@ func (agw AddressGW) Create(address *Address) (*Address, error) {
 	return updated, nil
 }
 
+// Find gets a specific address for a customer
+func (agw AddressGW) Find(customerID, addressID string) (*Address, error) {
+	address := &Address{}
+	if err := agw.bt.execute(http.MethodGet, "customers/"+customerID+"/addresses/"+addressID, address, nil); err != nil {
+		return nil, err
+	}
+	return address, nil
+}
+
 type addressSanitized struct {
 	XMLName            xml.Name
 	Company            string `xml:"company,omitempty"`

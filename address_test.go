@@ -39,3 +39,31 @@ func TestCreateAddress(t *testing.T) {
 		}
 	})
 }
+
+func TestFindAddress(t *testing.T) {
+	t.Parallel()
+
+	t.Run("shouldWork", func(t *testing.T) {
+		t.Parallel()
+
+		got, err := bt.Address().Find("cus1", "qd")
+		if err != nil {
+			t.Fatalf("unexpected err: %s", err)
+		}
+		want := &Address{CustomerID: "cus1", ID: "qd", FirstName: "first", LastName: "last"}
+		want.CreatedAt = got.CreatedAt
+		want.UpdatedAt = got.UpdatedAt
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("got: %+v\nwant: %+v", got, want)
+		}
+	})
+
+	t.Run("nonExisting", func(t *testing.T) {
+		t.Parallel()
+
+		if _, err := bt.Address().Find("cus1", "bla"); err == nil || err.Error() != "404 Not Found" {
+			t.Errorf("got: %v, want: 404 Not Found", err)
+		}
+	})
+
+}
