@@ -40,6 +40,38 @@ func TestCreateAddress(t *testing.T) {
 	})
 }
 
+func TestDeleteAddress(t *testing.T) {
+	t.Parallel()
+
+	t.Run("shouldWork", func(t *testing.T) {
+		t.Parallel()
+		customer := &Customer{FirstName: "test", LastName: "create address"}
+		customer, err := bt.Customer().Create(customer)
+		if err != nil {
+			t.Fatalf("unexpected err: %s", err)
+		}
+
+		address := &Address{CustomerID: customer.ID, StreetAddress: "street"}
+		address, err = bt.Address().Create(address)
+		if err != nil {
+			t.Fatalf("unexpected err: %s", err)
+		}
+
+		if err := bt.Address().Delete(customer.ID, address.ID); err != nil {
+			t.Errorf("unexpected err: %s", err)
+		}
+	})
+
+	t.Run("nonExisting", func(t *testing.T) {
+		t.Parallel()
+
+		if err := bt.Address().Delete("cus1", "bla"); err == nil || err.Error() != "404 Not Found" {
+			t.Errorf("got: %v, want: 404 Not Found", err)
+		}
+	})
+
+}
+
 func TestFindAddress(t *testing.T) {
 	t.Parallel()
 

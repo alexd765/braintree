@@ -42,6 +42,11 @@ func (agw AddressGW) Create(address *Address) (*Address, error) {
 	return updated, nil
 }
 
+// Delete an address on braintree
+func (agw AddressGW) Delete(customerID, addressID string) error {
+	return agw.bt.execute(http.MethodDelete, "customers/"+customerID+"/addresses/"+addressID, nil, nil)
+}
+
 // Find gets a specific address for a customer
 func (agw AddressGW) Find(customerID, addressID string) (*Address, error) {
 	address := &Address{}
