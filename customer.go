@@ -1,6 +1,7 @@
 package braintree
 
 import (
+	"encoding/xml"
 	"net/http"
 	"time"
 )
@@ -10,8 +11,8 @@ type Customer struct {
 	Addresses []Address `xml:"addresses>address,omitempty"`
 	// AndroidPayCards
 	// ApplePayCards
-	Company   string     `xml:"company,omitempty"`
-	CreatedAt *time.Time `xml:"created-at,omitempty"`
+	Company   string    `xml:"company,omitempty"`
+	CreatedAt time.Time `xml:"created-at"`
 	// CreditCards
 	CustomFields CustomFields `xml:"custom-fields,omitempty"`
 	Email        string       `xml:"email,omitempty"`
@@ -21,9 +22,9 @@ type Customer struct {
 	LastName     string       `xml:"last-name,omitempty"`
 	// PaymentMethods
 	// PaypalAccounts
-	Phone     string     `xml:"phone,omitempty"`
-	UpdatedAt *time.Time `xml:"updated-at,omitempty"`
-	Website   string     `xml:"website,omitempty"`
+	Phone     string    `xml:"phone,omitempty"`
+	UpdatedAt time.Time `xml:"updated-at"`
+	Website   string    `xml:"website,omitempty"`
 }
 
 // CustomerGW is a Customer Gateway
@@ -65,8 +66,38 @@ func (cgw CustomerGW) Update(customer *Customer) (*Customer, error) {
 	return updatedCustomer, nil
 }
 
-func (c Customer) sanitized() Customer {
-	c.CreatedAt = nil
-	c.UpdatedAt = nil
-	return c
+type customerSanitized struct {
+	XMLName   xml.Name
+	Addresses []Address `xml:"addresses>address,omitempty"`
+	// AndroidPayCards
+	// ApplePayCards
+	Company string `xml:"company,omitempty"`
+	// CreditCards
+	CustomFields CustomFields `xml:"custom-fields,omitempty"`
+	Email        string       `xml:"email,omitempty"`
+	Fax          string       `xml:"fax,omitempty"`
+	FirstName    string       `xml:"first-name,omitempty"`
+	ID           string       `xml:"id,omitempty"`
+	LastName     string       `xml:"last-name,omitempty"`
+	// PaymentMethods
+	// PaypalAccounts
+	Phone   string `xml:"phone,omitempty"`
+	Website string `xml:"website,omitempty"`
+}
+
+// sanitized returns a customer without CreatedAt, UpdatedAt
+func (c Customer) sanitized() customerSanitized {
+	return customerSanitized{
+		XMLName:      xml.Name{Local: "customer"},
+		Addresses:    c.Addresses,
+		Company:      c.Company,
+		CustomFields: c.CustomFields,
+		Email:        c.Email,
+		Fax:          c.Fax,
+		FirstName:    c.FirstName,
+		ID:           c.ID,
+		LastName:     c.LastName,
+		Phone:        c.Phone,
+		Website:      c.Website,
+	}
 }

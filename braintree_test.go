@@ -26,7 +26,7 @@ func TestLogger(t *testing.T) {
 	}
 	logsStr := logs.String()
 	wantPre := "bt: >>> POST https://sandbox.braintreegateway.com/merchants/"
-	wantSuff := "with payload: <Customer><addresses></addresses><first-name>AA</first-name><last-name>BB</last-name></Customer>\n"
+	wantSuff := "with payload: <customer><addresses></addresses><first-name>AA</first-name><last-name>BB</last-name></customer>\n"
 	if !strings.HasPrefix(logsStr, wantPre) {
 		t.Errorf("got: %s, want prefix: %s", logsStr, wantPre)
 	}

@@ -1,28 +1,29 @@
 package braintree
 
 import (
+	"encoding/xml"
 	"net/http"
 	"time"
 )
 
 // Address is a braintree address
 type Address struct {
-	Company            string     `xml:"company,omitempty"`
-	CountryCodeAlpha2  string     `xml:"country-code-alpha2,omitempty"`
-	CountryCodeAlpha3  string     `xml:"country-code-alpha3,omitempty"`
-	CountryCodeNumeric string     `xml:"country-code-numeric,omitempty"`
-	CountryName        string     `xml:"country-name,omitempty"`
-	CreatedAt          *time.Time `xml:"created-at,omitempty"`
-	CustomerID         string     `xml:"customer-id,omitempty"`
-	ExtendedAddress    string     `xml:"extended-address,omitempty"`
-	FirstName          string     `xml:"first-name,omitempty"`
-	ID                 string     `xml:"id,omitempty"`
-	LastName           string     `xml:"last-name,omitempty"`
-	Locality           string     `xml:"locality,omitempty"`
-	PostalCode         string     `xml:"postal-code,omitempty"`
-	Region             string     `xml:"region,omitempty"`
-	StreetAddress      string     `xml:"street-address,omitempty"`
-	UpdatedAt          *time.Time `xml:"updated-at,omitempty"`
+	Company            string    `xml:"company,omitempty"`
+	CountryCodeAlpha2  string    `xml:"country-code-alpha2,omitempty"`
+	CountryCodeAlpha3  string    `xml:"country-code-alpha3,omitempty"`
+	CountryCodeNumeric string    `xml:"country-code-numeric,omitempty"`
+	CountryName        string    `xml:"country-name,omitempty"`
+	CreatedAt          time.Time `xml:"created-at"`
+	CustomerID         string    `xml:"customer-id,omitempty"`
+	ExtendedAddress    string    `xml:"extended-address,omitempty"`
+	FirstName          string    `xml:"first-name,omitempty"`
+	ID                 string    `xml:"id,omitempty"`
+	LastName           string    `xml:"last-name,omitempty"`
+	Locality           string    `xml:"locality,omitempty"`
+	PostalCode         string    `xml:"postal-code,omitempty"`
+	Region             string    `xml:"region,omitempty"`
+	StreetAddress      string    `xml:"street-address,omitempty"`
+	UpdatedAt          time.Time `xml:"updated-at"`
 }
 
 // AddressGW is an Address Gateway
@@ -41,9 +42,39 @@ func (agw AddressGW) Create(address *Address) (*Address, error) {
 	return updated, nil
 }
 
-func (a Address) sanitize() Address {
-	a.CreatedAt = nil
-	a.CustomerID = ""
-	a.UpdatedAt = nil
-	return a
+type addressSanitized struct {
+	XMLName            xml.Name
+	Company            string `xml:"company,omitempty"`
+	CountryCodeAlpha2  string `xml:"country-code-alpha2,omitempty"`
+	CountryCodeAlpha3  string `xml:"country-code-alpha3,omitempty"`
+	CountryCodeNumeric string `xml:"country-code-numeric,omitempty"`
+	CountryName        string `xml:"country-name,omitempty"`
+	ExtendedAddress    string `xml:"extended-address,omitempty"`
+	FirstName          string `xml:"first-name,omitempty"`
+	ID                 string `xml:"id,omitempty"`
+	LastName           string `xml:"last-name,omitempty"`
+	Locality           string `xml:"locality,omitempty"`
+	PostalCode         string `xml:"postal-code,omitempty"`
+	Region             string `xml:"region,omitempty"`
+	StreetAddress      string `xml:"street-address,omitempty"`
+}
+
+// sanitize returns an address without CreatedAt, CustomerID, UpdatedAt
+func (a Address) sanitize() addressSanitized {
+	return addressSanitized{
+		XMLName:            xml.Name{Local: "address"},
+		Company:            a.Company,
+		CountryCodeAlpha2:  a.CountryCodeAlpha2,
+		CountryCodeAlpha3:  a.CountryCodeAlpha3,
+		CountryCodeNumeric: a.CountryCodeNumeric,
+		CountryName:        a.CountryName,
+		ExtendedAddress:    a.ExtendedAddress,
+		FirstName:          a.FirstName,
+		ID:                 a.ID,
+		LastName:           a.LastName,
+		Locality:           a.Locality,
+		PostalCode:         a.PostalCode,
+		Region:             a.Region,
+		StreetAddress:      a.StreetAddress,
+	}
 }
