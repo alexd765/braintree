@@ -7,6 +7,8 @@ import (
 
 // Braintree client
 type Braintree struct {
+	Logger *log.Logger
+
 	environment string
 	merchantID  string
 	publicKey   string

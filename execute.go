@@ -15,6 +15,10 @@ func (bt *Braintree) execute(method, path string, v interface{}, payload interfa
 		return err
 	}
 
+	if bt.Logger != nil {
+		bt.Logger.Printf(">>> %s %s with payload: %s\n", method, url, buf)
+	}
+
 	req, err := http.NewRequest(method, url, buf)
 	if err != nil {
 		return err
