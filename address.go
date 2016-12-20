@@ -34,9 +34,31 @@ type AddressGW struct {
 // Create an address on braintree.
 // CustomerID is required.
 func (agw AddressGW) Create(address *Address) (*Address, error) {
-
 	updated := &Address{}
 	if err := agw.bt.execute(http.MethodPost, "customers/"+address.CustomerID+"/addresses", updated, address.sanitize()); err != nil {
+		return nil, err
+	}
+	return updated, nil
+}
+
+// Delete an address on braintree
+func (agw AddressGW) Delete(customerID, addressID string) error {
+	return agw.bt.execute(http.MethodDelete, "customers/"+customerID+"/addresses/"+addressID, nil, nil)
+}
+
+// Find gets a specific address for a customer
+func (agw AddressGW) Find(customerID, addressID string) (*Address, error) {
+	address := &Address{}
+	if err := agw.bt.execute(http.MethodGet, "customers/"+customerID+"/addresses/"+addressID, address, nil); err != nil {
+		return nil, err
+	}
+	return address, nil
+}
+
+// Update an address in braintree
+func (agw AddressGW) Update(address *Address) (*Address, error) {
+	updated := &Address{}
+	if err := agw.bt.execute(http.MethodPut, "customers/"+address.CustomerID+"/addresses/"+address.ID, updated, address.sanitize()); err != nil {
 		return nil, err
 	}
 	return updated, nil
@@ -70,7 +92,6 @@ func (a Address) sanitize() addressSanitized {
 		CountryName:        a.CountryName,
 		ExtendedAddress:    a.ExtendedAddress,
 		FirstName:          a.FirstName,
-		ID:                 a.ID,
 		LastName:           a.LastName,
 		Locality:           a.Locality,
 		PostalCode:         a.PostalCode,
