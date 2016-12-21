@@ -1,6 +1,7 @@
 package braintree
 
 import (
+	"errors"
 	"log"
 	"os"
 )
@@ -17,35 +18,40 @@ type Braintree struct {
 	addressGW   AddressGW
 }
 
-// New returns a braintree client with credentials from env
-func New() *Braintree {
+// New returns a braintree client with credentials from env.
+//
+// BRAINTREE_MERCH_ID, BRAINTREE_PUB_KEY and BRAINTREE_PRIV_KEY
+// have to be set.
+func New() (*Braintree, error) {
 
 	bt := &Braintree{
 		environment: "sandbox",
-		merchantID:  mustGetenv("BRAINTREE_MERCH_ID"),
-		publicKey:   mustGetenv("BRAINTREE_PUB_KEY"),
-		privateKey:  mustGetenv("BRAINTREE_PRIV_KEY"),
+		merchantID:  os.Getenv("BRAINTREE_MERCH_ID"),
+		publicKey:   os.Getenv("BRAINTREE_PUB_KEY"),
+		privateKey:  os.Getenv("BRAINTREE_PRIV_KEY"),
 	}
 	bt.customerGW = CustomerGW{bt: bt}
 	bt.addressGW = AddressGW{bt: bt}
 
-	return bt
+	if bt.merchantID == "" {
+		return nil, errors.New("env BRAINTREE_MERCH_ID not set")
+	}
+	if bt.publicKey == "" {
+		return nil, errors.New("env BRAINTREE_PUB_KEY not set")
+	}
+	if bt.privateKey == "" {
+		return nil, errors.New("env BRAINTREE_PRIV_KEY not set")
+	}
+
+	return bt, nil
 }
 
-// Customer provides the customer gateway for this braintree client
+// Customer provides the customer gateway for this braintree client.
 func (bt *Braintree) Customer() CustomerGW {
 	return bt.customerGW
 }
 
-// Address provides the address gateway for this braintree client
+// Address provides the address gateway for this braintree client.
 func (bt *Braintree) Address() AddressGW {
 	return bt.addressGW
-}
-
-func mustGetenv(key string) string {
-	value := os.Getenv(key)
-	if value == "" {
-		log.Fatalf("env: %s not set", key)
-	}
-	return value
 }

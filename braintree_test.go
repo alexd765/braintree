@@ -11,16 +11,38 @@ import (
 var bt *Braintree
 
 func TestMain(m *testing.M) {
-	bt = New()
+	var err error
+	bt, err = New()
+	if err != nil {
+		log.Fatalf("error %s", err)
+	}
 	os.Exit(m.Run())
 }
 
+// doesn't run in parallel to other tests
+func TestNew(t *testing.T) {
+
+	for _, key := range [3]string{"BRAINTREE_MERCH_ID", "BRAINTREE_PUB_KEY", "BRAINTREE_PRIV_KEY"} {
+		value := os.Getenv(key)
+		os.Setenv(key, "")
+		want := "env " + key + " not set"
+		if _, err := New(); err == nil || err.Error() != want {
+			t.Errorf("got: %v, want: %s", err, want)
+		}
+		os.Setenv(key, value)
+	}
+}
+
 func TestLogger(t *testing.T) {
+	t.Parallel()
 	logs := new(bytes.Buffer)
-	bt2 := New()
+	bt2, err := New()
+	if err != nil {
+		t.Fatalf("unexpected err: %s", err)
+	}
 	bt2.Logger = log.New(logs, "bt: ", 0)
 	customer := &Customer{FirstName: "AA", LastName: "BB"}
-	_, err := bt2.Customer().Create(customer)
+	_, err = bt2.Customer().Create(customer)
 	if err != nil {
 		t.Fatalf("unexpected err: %s", err)
 	}
