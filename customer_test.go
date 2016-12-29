@@ -91,6 +91,12 @@ func TestFindCustomer(t *testing.T) {
 		if cardType := customer.CreditCards[0].CardType; cardType != CardTypeVisa {
 			t.Errorf("card type: got %s, want: %s", cardType, CardTypeVisa)
 		}
+		if size := len(customer.CreditCards[0].Subscriptions); size != 1 {
+			t.Fatalf("subscriptions: got: %d, want: 1", size)
+		}
+		if planID := customer.CreditCards[0].Subscriptions[0].PlanID; planID != "plan1" {
+			t.Errorf("planID: got %s, want: plan1", planID)
+		}
 	})
 
 	t.Run("nonExisting", func(t *testing.T) {
