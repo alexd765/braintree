@@ -14,8 +14,10 @@ type Braintree struct {
 	merchantID  string
 	publicKey   string
 	privateKey  string
-	customerGW  CustomerGW
-	addressGW   AddressGW
+
+	addressGW      AddressGW
+	customerGW     CustomerGW
+	subscriptionGW SubscriptionGW
 }
 
 // New returns a braintree client with credentials from env.
@@ -30,8 +32,9 @@ func New() (*Braintree, error) {
 		publicKey:   os.Getenv("BRAINTREE_PUB_KEY"),
 		privateKey:  os.Getenv("BRAINTREE_PRIV_KEY"),
 	}
-	bt.customerGW = CustomerGW{bt: bt}
 	bt.addressGW = AddressGW{bt: bt}
+	bt.customerGW = CustomerGW{bt: bt}
+	bt.subscriptionGW = SubscriptionGW{bt: bt}
 
 	if bt.merchantID == "" {
 		return nil, errors.New("env BRAINTREE_MERCH_ID not set")
@@ -46,12 +49,17 @@ func New() (*Braintree, error) {
 	return bt, nil
 }
 
+// Address provides the address gateway for this braintree client.
+func (bt *Braintree) Address() AddressGW {
+	return bt.addressGW
+}
+
 // Customer provides the customer gateway for this braintree client.
 func (bt *Braintree) Customer() CustomerGW {
 	return bt.customerGW
 }
 
-// Address provides the address gateway for this braintree client.
-func (bt *Braintree) Address() AddressGW {
-	return bt.addressGW
+// Subscription provides the subscription gateway for this braintree client.
+func (bt *Braintree) Subscription() SubscriptionGW {
+	return bt.subscriptionGW
 }
