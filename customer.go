@@ -11,9 +11,9 @@ type Customer struct {
 	Addresses []Address `xml:"addresses>address,omitempty"`
 	// AndroidPayCards
 	// ApplePayCards
-	Company   string    `xml:"company,omitempty"`
-	CreatedAt time.Time `xml:"created-at"`
-	// CreditCards
+	Company      string       `xml:"company,omitempty"`
+	CreatedAt    time.Time    `xml:"created-at"`
+	CreditCards  []CreditCard `xml:"credit-cards>credit-card,omitempty"`
 	CustomFields CustomFields `xml:"custom-fields,omitempty"`
 	Email        string       `xml:"email,omitempty"`
 	Fax          string       `xml:"fax,omitempty"`

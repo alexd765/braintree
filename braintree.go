@@ -15,9 +15,10 @@ type Braintree struct {
 	publicKey   string
 	privateKey  string
 
-	addressGW  AddressGW
-	customerGW CustomerGW
-	planGW     PlanGW
+	addressGW       AddressGW
+	customerGW      CustomerGW
+	paymentMethodGW PaymentMethodGW
+	planGW          PlanGW
 }
 
 // New returns a braintree client with credentials from env.
@@ -34,6 +35,7 @@ func New() (*Braintree, error) {
 	}
 	bt.addressGW = AddressGW{bt: bt}
 	bt.customerGW = CustomerGW{bt: bt}
+	bt.paymentMethodGW = PaymentMethodGW{bt: bt}
 	bt.planGW = PlanGW{bt: bt}
 
 	if bt.merchantID == "" {
@@ -57,6 +59,11 @@ func (bt *Braintree) Address() AddressGW {
 // Customer provides the customer gateway for this braintree client.
 func (bt *Braintree) Customer() CustomerGW {
 	return bt.customerGW
+}
+
+// PaymentMethod provides the payment method gateway for this braintree client.
+func (bt *Braintree) PaymentMethod() PaymentMethodGW {
+	return bt.paymentMethodGW
 }
 
 // Plan provides the plan gateway for this braintree client.

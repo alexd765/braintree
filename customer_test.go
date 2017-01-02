@@ -85,6 +85,12 @@ func TestFindCustomer(t *testing.T) {
 		if gotLast2 := customer.Addresses[1].LastName; gotLast2 != "last2" {
 			t.Errorf("got: %s, want: last2", gotLast2)
 		}
+		if size := len(customer.CreditCards); size != 1 {
+			t.Fatalf("credit cards: got: %d, want: 1", size)
+		}
+		if cardType := customer.CreditCards[0].CardType; cardType != CardTypeVisa {
+			t.Errorf("card type: got %s, want: %s", cardType, CardTypeVisa)
+		}
 	})
 
 	t.Run("nonExisting", func(t *testing.T) {
