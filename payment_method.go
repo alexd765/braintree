@@ -5,7 +5,7 @@ import "net/http"
 // PaymentMethodInput is used to create a payment method on braintree.
 // CustomerID and PaymentMethodNonce are required.
 type PaymentMethodInput struct {
-	BillingAddress     Address
+	// BillingAddress     Address
 	BillingAddressID   string
 	CardholderName     string
 	CustomerID         string
@@ -47,8 +47,8 @@ func (pgw PaymentMethodGW) Create(input *PaymentMethodInput) (*CreditCard, error
 }
 
 type paymentMethodInputSanitized struct {
-	XMLName            string                 `xml:"payment-method"`
-	BillingAddress     *Address               `xml:"billing-address,omitempty"`
+	XMLName string `xml:"payment-method"`
+	// BillingAddress     *Address               `xml:"billing-address,omitempty"`
 	BillingAddressID   string                 `xml:"billing-address-id,omitempty"`
 	CardholderName     string                 `xml:"cardholder-name,omitempty"`
 	CustomerID         string                 `xml:"customer-id"`
@@ -66,9 +66,9 @@ func (pmi PaymentMethodInput) sanitized() paymentMethodInputSanitized {
 		PaymentMethodNonce: pmi.PaymentMethodNonce,
 		Token:              pmi.Token,
 	}
-	if pmi.BillingAddress != (Address{}) {
-		sanitized.BillingAddress = &pmi.BillingAddress
-	}
+	//	if pmi.BillingAddress != (Address{}) {
+	//		sanitized.BillingAddress = &pmi.BillingAddress
+	//	}
 	if pmi.Options != (PaymentMethodOptions{}) {
 		sanitized.Options = &pmi.Options
 	}
