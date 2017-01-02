@@ -4,7 +4,6 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"testing"
-	"time"
 )
 
 func TestCreateCustomer(t *testing.T) {
@@ -12,7 +11,7 @@ func TestCreateCustomer(t *testing.T) {
 
 	t.Run("noID", func(t *testing.T) {
 		t.Parallel()
-		want := &Customer{FirstName: "first"}
+		want := CustomerInput{FirstName: "first", RiskData: RiskData{CustomerIP: "123.123.123.123"}}
 		got, err := bt.Customer().Create(want)
 		if err != nil {
 			t.Fatalf("unexpected err: %s", err)
@@ -27,8 +26,7 @@ func TestCreateCustomer(t *testing.T) {
 
 	t.Run("existing", func(t *testing.T) {
 		t.Parallel()
-		customer := &Customer{ID: "cus1", FirstName: "first"}
-		got, err := bt.Customer().Create(customer)
+		got, err := bt.Customer().Create(CustomerInput{ID: "cus1", FirstName: "first"})
 		if err == nil || err.Error() != "422 Unprocessable Entity" {
 			t.Errorf("got: %v, want: 422 Unprocessable Entity", err)
 		}
@@ -44,8 +42,7 @@ func TestDeleteCustomer(t *testing.T) {
 	t.Run("existing", func(t *testing.T) {
 		t.Parallel()
 
-		customer := &Customer{FirstName: "first"}
-		customer, err := bt.Customer().Create(customer)
+		customer, err := bt.Customer().Create(CustomerInput{FirstName: "first"})
 		if err != nil {
 			t.Fatalf("unexpected err: %s", err)
 		}
@@ -118,7 +115,7 @@ func TestUpdateCustomer(t *testing.T) {
 	t.Run("existing", func(t *testing.T) {
 		t.Parallel()
 
-		want := &Customer{ID: "cus1", Phone: random(), CreatedAt: time.Time{}}
+		want := CustomerInput{ID: "cus1", Phone: random()}
 		got, err := bt.Customer().Update(want)
 		if err != nil {
 			t.Fatalf("unexpected err: %s", err)
@@ -134,8 +131,7 @@ func TestUpdateCustomer(t *testing.T) {
 	t.Run("nonExisting", func(t *testing.T) {
 		t.Parallel()
 
-		customer := &Customer{ID: "cus2", Phone: random()}
-		got, err := bt.Customer().Update(customer)
+		got, err := bt.Customer().Update(CustomerInput{ID: "cus2", Phone: random()})
 		if err == nil || err.Error() != "404 Not Found" {
 			t.Errorf("got: %v, want: 404 Not Found", err)
 		}
@@ -146,9 +142,7 @@ func TestUpdateCustomer(t *testing.T) {
 
 	t.Run("noID", func(t *testing.T) {
 		t.Parallel()
-
-		customer := &Customer{Phone: random()}
-		got, err := bt.Customer().Update(customer)
+		got, err := bt.Customer().Update(CustomerInput{Phone: random()})
 		if err == nil || err.Error() != "404 Not Found" {
 			t.Errorf("got: %v, want: 404 Not Found", err)
 		}
