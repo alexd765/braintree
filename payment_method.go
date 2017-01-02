@@ -46,6 +46,11 @@ func (pgw PaymentMethodGW) Create(input *PaymentMethodInput) (*CreditCard, error
 	return card, nil
 }
 
+// Delete a payment method on braintree.
+func (pgw PaymentMethodGW) Delete(token string) error {
+	return pgw.bt.execute(http.MethodDelete, "payment_methods/any/"+token, nil, nil)
+}
+
 type paymentMethodInputSanitized struct {
 	XMLName string `xml:"payment-method"`
 	// BillingAddress     *Address               `xml:"billing-address,omitempty"`
