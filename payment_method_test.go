@@ -34,8 +34,7 @@ func TestCreatePaymentMethod(t *testing.T) {
 		test := test
 		t.Run(test.Name, func(t *testing.T) {
 			t.Parallel()
-			customer := &Customer{FirstName: "first"}
-			customer, err := bt.Customer().Create(customer)
+			customer, err := bt.Customer().Create(CustomerInput{FirstName: "first"})
 			if err != nil {
 				t.Fatalf("unexpected err: %s", err)
 			}
@@ -67,8 +66,7 @@ func TestDeletePaymentMethod(t *testing.T) {
 	t.Run("existing", func(t *testing.T) {
 		t.Parallel()
 
-		customer := &Customer{FirstName: "first"}
-		customer, err := bt.Customer().Create(customer)
+		customer, err := bt.Customer().Create(CustomerInput{FirstName: "first"})
 		if err != nil {
 			t.Fatalf("unexpected err: %s", err)
 		}
@@ -121,8 +119,7 @@ func TestUpdatePaymentMethod(t *testing.T) {
 	t.Run("existing", func(t *testing.T) {
 		t.Parallel()
 
-		customer := &Customer{FirstName: "first"}
-		customer, err := bt.Customer().Create(customer)
+		customer, err := bt.Customer().Create(CustomerInput{FirstName: "first"})
 		if err != nil {
 			t.Fatalf("unexpected err: %s", err)
 		}

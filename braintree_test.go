@@ -41,14 +41,13 @@ func TestLogger(t *testing.T) {
 		t.Fatalf("unexpected err: %s", err)
 	}
 	bt2.Logger = log.New(logs, "bt: ", 0)
-	customer := &Customer{FirstName: "AA", LastName: "BB"}
-	_, err = bt2.Customer().Create(customer)
+	_, err = bt2.Customer().Create(CustomerInput{FirstName: "AA", LastName: "BB"})
 	if err != nil {
 		t.Fatalf("unexpected err: %s", err)
 	}
 	logsStr := logs.String()
 	wantPre := "bt: >>> POST https://sandbox.braintreegateway.com/merchants/"
-	wantSuff := "with payload: <customer><addresses></addresses><first-name>AA</first-name><last-name>BB</last-name></customer>\n"
+	wantSuff := "with payload: <customer><first-name>AA</first-name><last-name>BB</last-name></customer>\n"
 	if !strings.HasPrefix(logsStr, wantPre) {
 		t.Errorf("got: %s, want prefix: %s", logsStr, wantPre)
 	}
