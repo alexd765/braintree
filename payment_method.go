@@ -51,6 +51,15 @@ func (pgw PaymentMethodGW) Delete(token string) error {
 	return pgw.bt.execute(http.MethodDelete, "payment_methods/any/"+token, nil, nil)
 }
 
+// Find a payment method on braintree.
+func (pgw PaymentMethodGW) Find(token string) (*CreditCard, error) {
+	card := &CreditCard{}
+	if err := pgw.bt.execute(http.MethodGet, "payment_methods/any/"+token, card, nil); err != nil {
+		return nil, err
+	}
+	return card, nil
+}
+
 type paymentMethodInputSanitized struct {
 	XMLName string `xml:"payment-method"`
 	// BillingAddress     *Address               `xml:"billing-address,omitempty"`

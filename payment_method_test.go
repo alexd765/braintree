@@ -90,3 +90,27 @@ func TestDeletePaymentMethod(t *testing.T) {
 		}
 	})
 }
+
+func TestFindPaymentMethod(t *testing.T) {
+	t.Parallel()
+
+	t.Run("existing", func(t *testing.T) {
+		t.Parallel()
+
+		card, err := bt.PaymentMethod().Find("j9jjzj")
+		if err != nil {
+			t.Fatalf("unexpected err: %s", err)
+		}
+		if card.CardType != CardTypeVisa {
+			t.Errorf("card type: got %s, want: %s", card.CardType, CardTypeVisa)
+		}
+	})
+
+	t.Run("nonExisting", func(t *testing.T) {
+		t.Parallel()
+
+		if _, err := bt.PaymentMethod().Find("nonExisting"); err == nil || err.Error() != "404 Not Found" {
+			t.Errorf("got: %v, want: 404: Not Found", err)
+		}
+	})
+}
