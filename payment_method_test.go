@@ -23,7 +23,7 @@ func TestCreatePaymentMethod(t *testing.T) {
 		{
 			Name: "withRiskData",
 			Input: PaymentMethodInput{
-				RiskData: PaymentMethodRiskData{
+				RiskData: RiskData{
 					CustomerIP: "123.123.123.123",
 				},
 			},

@@ -40,7 +40,7 @@ type CustomerInput struct {
 	LastName           string
 	PaymentMethodNonce string
 	Phone              string
-	RiskData           PaymentMethodRiskData
+	RiskData           RiskData
 	Website            string
 }
 
@@ -87,16 +87,16 @@ type customerInputSanitized struct {
 	XMLName xml.Name `xml:"customer"`
 	Company string   `xml:"company,omitempty"`
 	// CreditCard
-	CustomFields       CustomFields           `xml:"custom-fields,omitempty"`
-	Email              string                 `xml:"email,omitempty"`
-	Fax                string                 `xml:"fax,omitempty"`
-	FirstName          string                 `xml:"first-name,omitempty"`
-	ID                 string                 `xml:"id,omitempty"`
-	LastName           string                 `xml:"last-name,omitempty"`
-	PaymentMethodNonce string                 `xml:"payment-method-nonce,omitempty"`
-	Phone              string                 `xml:"phone,omitempty"`
-	RiskData           *PaymentMethodRiskData `xml:"risk-data,omitempty"`
-	Website            string                 `xml:"website,omitempty"`
+	CustomFields       CustomFields `xml:"custom-fields,omitempty"`
+	Email              string       `xml:"email,omitempty"`
+	Fax                string       `xml:"fax,omitempty"`
+	FirstName          string       `xml:"first-name,omitempty"`
+	ID                 string       `xml:"id,omitempty"`
+	LastName           string       `xml:"last-name,omitempty"`
+	PaymentMethodNonce string       `xml:"payment-method-nonce,omitempty"`
+	Phone              string       `xml:"phone,omitempty"`
+	RiskData           *RiskData    `xml:"risk-data,omitempty"`
+	Website            string       `xml:"website,omitempty"`
 }
 
 func (ci CustomerInput) sanitize() customerInputSanitized {
@@ -112,7 +112,7 @@ func (ci CustomerInput) sanitize() customerInputSanitized {
 		Phone:              ci.Phone,
 		Website:            ci.Website,
 	}
-	if ci.RiskData != (PaymentMethodRiskData{}) {
+	if ci.RiskData != (RiskData{}) {
 		cis.RiskData = &ci.RiskData
 	}
 	return cis

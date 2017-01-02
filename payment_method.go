@@ -11,7 +11,7 @@ type PaymentMethodInput struct {
 	CustomerID         string
 	Options            PaymentMethodOptions
 	PaymentMethodNonce string
-	RiskData           PaymentMethodRiskData
+	RiskData           RiskData
 	Token              string
 }
 
@@ -22,12 +22,6 @@ type PaymentMethodOptions struct {
 	VerificationAmount           string `xml:"verification-amount,omitempty"`
 	VerificationMerchantID       string `xml:"verification-merchant-id,omitempty"`
 	VerifyCard                   bool   `xml:"verify-card,omitempty"`
-}
-
-// PaymentMethodRiskData can be used as part of a PaymentMethodInput.
-type PaymentMethodRiskData struct {
-	CustomerBrowser string `xml:"customer-browser,omitempty"`
-	CustomerIP      string `xml:"customer-ip,omitempty"`
 }
 
 // PaymentMethodGW is a payment method gateway.
@@ -73,13 +67,13 @@ func (pgw PaymentMethodGW) Update(input *PaymentMethodInput) (*CreditCard, error
 type paymentMethodInputSanitized struct {
 	XMLName string `xml:"payment-method"`
 	// BillingAddress     *Address               `xml:"billing-address,omitempty"`
-	BillingAddressID   string                 `xml:"billing-address-id,omitempty"`
-	CardholderName     string                 `xml:"cardholder-name,omitempty"`
-	CustomerID         string                 `xml:"customer-id"`
-	Options            *PaymentMethodOptions  `xml:"options,omitempty"`
-	PaymentMethodNonce string                 `xml:"payment-method-nonce"`
-	RiskData           *PaymentMethodRiskData `xml:"risk-data,omitempty"`
-	Token              string                 `xml:"token,omitempty"`
+	BillingAddressID   string                `xml:"billing-address-id,omitempty"`
+	CardholderName     string                `xml:"cardholder-name,omitempty"`
+	CustomerID         string                `xml:"customer-id"`
+	Options            *PaymentMethodOptions `xml:"options,omitempty"`
+	PaymentMethodNonce string                `xml:"payment-method-nonce"`
+	RiskData           *RiskData             `xml:"risk-data,omitempty"`
+	Token              string                `xml:"token,omitempty"`
 }
 
 func (pmi PaymentMethodInput) sanitized() paymentMethodInputSanitized {
@@ -96,7 +90,7 @@ func (pmi PaymentMethodInput) sanitized() paymentMethodInputSanitized {
 	if pmi.Options != (PaymentMethodOptions{}) {
 		sanitized.Options = &pmi.Options
 	}
-	if pmi.RiskData != (PaymentMethodRiskData{}) {
+	if pmi.RiskData != (RiskData{}) {
 		sanitized.RiskData = &pmi.RiskData
 	}
 	return sanitized
