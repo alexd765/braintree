@@ -60,6 +60,16 @@ func (pgw PaymentMethodGW) Find(token string) (*CreditCard, error) {
 	return card, nil
 }
 
+// Update a payment method on braintree.
+// Token is required.
+func (pgw PaymentMethodGW) Update(input *PaymentMethodInput) (*CreditCard, error) {
+	card := &CreditCard{}
+	if err := pgw.bt.execute(http.MethodPut, "payment_methods/any/"+input.Token, card, input.sanitized()); err != nil {
+		return nil, err
+	}
+	return card, nil
+}
+
 type paymentMethodInputSanitized struct {
 	XMLName string `xml:"payment-method"`
 	// BillingAddress     *Address               `xml:"billing-address,omitempty"`

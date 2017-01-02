@@ -114,3 +114,39 @@ func TestFindPaymentMethod(t *testing.T) {
 		}
 	})
 }
+
+func TestUpdatePaymentMethod(t *testing.T) {
+	t.Parallel()
+
+	t.Run("existing", func(t *testing.T) {
+		t.Parallel()
+
+		customer := &Customer{FirstName: "first"}
+		customer, err := bt.Customer().Create(customer)
+		if err != nil {
+			t.Fatalf("unexpected err: %s", err)
+		}
+		input := &PaymentMethodInput{CustomerID: customer.ID, PaymentMethodNonce: "fake-valid-visa-nonce"}
+		card, err := bt.PaymentMethod().Create(input)
+		if err != nil {
+			t.Fatalf("unexpected err: %s", err)
+		}
+		input = &PaymentMethodInput{Token: card.Token, CardholderName: "name"}
+		card, err = bt.PaymentMethod().Update(input)
+		if err != nil {
+			t.Fatalf("unexpected err: %s", err)
+		}
+		if card.CardholderName != "name" {
+			t.Errorf("cardholder name: got: %s, want: name", card.CardholderName)
+		}
+	})
+
+	t.Run("nonExisting", func(t *testing.T) {
+		t.Parallel()
+
+		input := &PaymentMethodInput{Token: "nonExisting"}
+		if _, err := bt.PaymentMethod().Update(input); err == nil || err.Error() != "404 Not Found" {
+			t.Errorf("got: %v, want: 404: Not Found", err)
+		}
+	})
+}
