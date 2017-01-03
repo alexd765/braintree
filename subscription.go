@@ -8,19 +8,19 @@ import (
 
 const (
 	// SubscriptionStatusActive means the subscription is active.
-	SubscriptionStatusActive = "active"
+	SubscriptionStatusActive = "Active"
 
 	// SubscriptionStatusCanceled means the subscription was canceled.
-	SubscriptionStatusCanceled = "canceled"
+	SubscriptionStatusCanceled = "Canceled"
 
 	// SubscriptionStatusExpired means the subscription has expired.
-	SubscriptionStatusExpired = "expired"
+	SubscriptionStatusExpired = "Expired"
 
 	// SubscriptionStatusPastDue means the subscription is past due.
-	SubscriptionStatusPastDue = "past due"
+	SubscriptionStatusPastDue = "Past Due"
 
 	// SubscriptionStatusPending means the the subscription will begin in the future.
-	SubscriptionStatusPending = "pending"
+	SubscriptionStatusPending = "Pending"
 )
 
 // A Subscription on braintree
@@ -79,6 +79,15 @@ type SubscriptionInput struct {
 // SubscriptionGW is a Subscription Gateway.
 type SubscriptionGW struct {
 	bt *Braintree
+}
+
+// Cancel a subscription on braintree.
+func (sgw SubscriptionGW) Cancel(id string) (*Subscription, error) {
+	subscription := &Subscription{}
+	if err := sgw.bt.execute(http.MethodPut, "subscriptions/"+id+"/cancel", subscription, nil); err != nil {
+		return nil, err
+	}
+	return subscription, nil
 }
 
 // Create a subscription on braintree.

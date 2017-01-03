@@ -2,6 +2,52 @@ package braintree
 
 import "testing"
 
+func TestCancelSubscription(t *testing.T) {
+	t.Parallel()
+
+	t.Run("existing", func(t *testing.T) {
+		t.Parallel()
+		customer, err := bt.Customer().Create(CustomerInput{FirstName: "first"})
+		if err != nil {
+			t.Fatalf("unexpected err: %s", err)
+		}
+
+		paymentMethodInput := &PaymentMethodInput{
+			CustomerID:         customer.ID,
+			PaymentMethodNonce: "fake-valid-visa-nonce",
+		}
+		card, err := bt.PaymentMethod().Create(paymentMethodInput)
+		if err != nil {
+			t.Fatalf("unexpected err: %s", err)
+		}
+
+		subscription, err := bt.Subscription().Create(
+			SubscriptionInput{
+				PaymentMethodToken: card.Token,
+				PlanID:             "plan1",
+			},
+		)
+		if err != nil {
+			t.Fatalf("unexpected err: %s", err)
+		}
+
+		subscription, err = bt.Subscription().Cancel(subscription.ID)
+		if err != nil {
+			t.Fatalf("unexpected err: %s", err)
+		}
+		if subscription.Status != SubscriptionStatusCanceled {
+			t.Errorf("subscription.Status: got: %s, want: %s", subscription.Status, SubscriptionStatusCanceled)
+		}
+	})
+
+	t.Run("nonExisting", func(t *testing.T) {
+		t.Parallel()
+		if _, err := bt.Subscription().Cancel("nonExisting"); err == nil || err.Error() != "404 Not Found" {
+			t.Errorf("got: %v, want: 404 Not Found", err)
+		}
+	})
+}
+
 func TestCreateSubscription(t *testing.T) {
 	t.Parallel()
 
