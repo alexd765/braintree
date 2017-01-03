@@ -111,6 +111,17 @@ func (sgw SubscriptionGW) Find(id string) (*Subscription, error) {
 	return subscription, nil
 }
 
+// Update a subscription on braintree.
+//
+// ID is required.
+func (sgw SubscriptionGW) Update(subscriptionInput SubscriptionInput) (*Subscription, error) {
+	subscription := &Subscription{}
+	if err := sgw.bt.execute(http.MethodPut, "subscriptions/"+subscriptionInput.ID, subscription, subscriptionInput.sanitize()); err != nil {
+		return nil, err
+	}
+	return subscription, nil
+}
+
 type subscriptionInputSanitized struct {
 	XMLName xml.Name `xml:"subscription"`
 	// AddOns
