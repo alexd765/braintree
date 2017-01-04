@@ -19,6 +19,7 @@ type Braintree struct {
 	customerGW      CustomerGW
 	paymentMethodGW PaymentMethodGW
 	planGW          PlanGW
+	subscriptionGW  SubscriptionGW
 }
 
 // New returns a braintree client with credentials from env.
@@ -37,6 +38,7 @@ func New() (*Braintree, error) {
 	bt.customerGW = CustomerGW{bt: bt}
 	bt.paymentMethodGW = PaymentMethodGW{bt: bt}
 	bt.planGW = PlanGW{bt: bt}
+	bt.subscriptionGW = SubscriptionGW{bt: bt}
 
 	if bt.merchantID == "" {
 		return nil, errors.New("env BRAINTREE_MERCH_ID not set")
@@ -69,4 +71,9 @@ func (bt *Braintree) PaymentMethod() PaymentMethodGW {
 // Plan provides the plan gateway for this braintree client.
 func (bt *Braintree) Plan() PlanGW {
 	return bt.planGW
+}
+
+// Subscription provides the subscription gateway for this braintree client.
+func (bt *Braintree) Subscription() SubscriptionGW {
+	return bt.subscriptionGW
 }
