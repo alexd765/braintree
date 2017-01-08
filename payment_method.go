@@ -37,7 +37,7 @@ type PaymentMethodGW struct {
 // Create a payment method on braintree.
 //
 // Todo: return other payment methods like paypal as well.
-func (pgw PaymentMethodGW) Create(input *PaymentMethodInput) (*CreditCard, error) {
+func (pgw PaymentMethodGW) Create(input PaymentMethodInput) (*CreditCard, error) {
 	input.XMLName = xml.Name{Local: "payment-method"}
 	card := &CreditCard{}
 	if err := pgw.bt.execute(http.MethodPost, "payment_methods", card, input); err != nil {
@@ -63,7 +63,7 @@ func (pgw PaymentMethodGW) Find(token string) (*CreditCard, error) {
 // Update a payment method on braintree.
 //
 // Token is required.
-func (pgw PaymentMethodGW) Update(input *PaymentMethodInput) (*CreditCard, error) {
+func (pgw PaymentMethodGW) Update(input PaymentMethodInput) (*CreditCard, error) {
 	input.XMLName = xml.Name{Local: "payment-method"}
 	card := &CreditCard{}
 	if err := pgw.bt.execute(http.MethodPut, "payment_methods/any/"+input.Token, card, input); err != nil {

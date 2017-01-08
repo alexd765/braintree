@@ -48,7 +48,7 @@ func TestCreatePaymentMethod(t *testing.T) {
 			}
 			test.Input.CustomerID = customer.ID
 			test.Input.PaymentMethodNonce = "fake-valid-visa-nonce"
-			card, err := bt.PaymentMethod().Create(&test.Input)
+			card, err := bt.PaymentMethod().Create(test.Input)
 			if err != nil {
 				t.Fatalf("unexpected err: %s", err)
 			}
@@ -60,8 +60,7 @@ func TestCreatePaymentMethod(t *testing.T) {
 
 	t.Run("noCustomerID", func(t *testing.T) {
 		t.Parallel()
-		input := &PaymentMethodInput{PaymentMethodNonce: "fake-valid-visa-nonce"}
-		if _, err := bt.PaymentMethod().Create(input); err == nil || err.Error() != "422 Unprocessable Entity" {
+		if _, err := bt.PaymentMethod().Create(PaymentMethodInput{PaymentMethodNonce: "fake-valid-visa-nonce"}); err == nil || err.Error() != "422 Unprocessable Entity" {
 			t.Errorf("got: %v, want: 422 Unprocessable Entity", err)
 		}
 
@@ -78,8 +77,8 @@ func TestDeletePaymentMethod(t *testing.T) {
 		if err != nil {
 			t.Fatalf("unexpected err: %s", err)
 		}
-		input := &PaymentMethodInput{CustomerID: customer.ID, PaymentMethodNonce: "fake-valid-visa-nonce"}
-		card, err := bt.PaymentMethod().Create(input)
+
+		card, err := bt.PaymentMethod().Create(PaymentMethodInput{CustomerID: customer.ID, PaymentMethodNonce: "fake-valid-visa-nonce"})
 		if err != nil {
 			t.Fatalf("unexpected err: %s", err)
 		}
@@ -131,13 +130,13 @@ func TestUpdatePaymentMethod(t *testing.T) {
 		if err != nil {
 			t.Fatalf("unexpected err: %s", err)
 		}
-		input := &PaymentMethodInput{CustomerID: customer.ID, PaymentMethodNonce: "fake-valid-visa-nonce"}
-		card, err := bt.PaymentMethod().Create(input)
+
+		card, err := bt.PaymentMethod().Create(PaymentMethodInput{CustomerID: customer.ID, PaymentMethodNonce: "fake-valid-visa-nonce"})
 		if err != nil {
 			t.Fatalf("unexpected err: %s", err)
 		}
-		input = &PaymentMethodInput{Token: card.Token, CardholderName: "name"}
-		card, err = bt.PaymentMethod().Update(input)
+
+		card, err = bt.PaymentMethod().Update(PaymentMethodInput{Token: card.Token, CardholderName: "name"})
 		if err != nil {
 			t.Fatalf("unexpected err: %s", err)
 		}
@@ -149,8 +148,7 @@ func TestUpdatePaymentMethod(t *testing.T) {
 	t.Run("nonExisting", func(t *testing.T) {
 		t.Parallel()
 
-		input := &PaymentMethodInput{Token: "nonExisting"}
-		if _, err := bt.PaymentMethod().Update(input); err == nil || err.Error() != "404 Not Found" {
+		if _, err := bt.PaymentMethod().Update(PaymentMethodInput{Token: "nonExisting"}); err == nil || err.Error() != "404 Not Found" {
 			t.Errorf("got: %v, want: 404: Not Found", err)
 		}
 	})
