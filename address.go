@@ -1,6 +1,7 @@
 package braintree
 
 import (
+	"encoding/xml"
 	"net/http"
 	"time"
 )
@@ -27,7 +28,7 @@ type Address struct {
 
 // AddressInput is used to create or update an address on braintree.
 type AddressInput struct {
-	XMLName            string `xml:"address"`
+	XMLName            xml.Name
 	Company            string `xml:"company,omitempty"`
 	CountryCodeAlpha2  string `xml:"country-code-alpha2,omitempty"`
 	CountryCodeAlpha3  string `xml:"country-code-alpha3,omitempty"`
@@ -50,6 +51,7 @@ type AddressGW struct {
 
 // Create an address on braintree.
 func (agw AddressGW) Create(customerID string, address AddressInput) (*Address, error) {
+	address.XMLName = xml.Name{Local: "address"}
 	resp := &Address{}
 	if err := agw.bt.execute(http.MethodPost, "customers/"+customerID+"/addresses", resp, address); err != nil {
 		return nil, err
@@ -73,6 +75,7 @@ func (agw AddressGW) Find(customerID, addressID string) (*Address, error) {
 
 // Update an address in braintree.
 func (agw AddressGW) Update(customerID, addressID string, address AddressInput) (*Address, error) {
+	address.XMLName = xml.Name{Local: "address"}
 	resp := &Address{}
 	if err := agw.bt.execute(http.MethodPut, "customers/"+customerID+"/addresses/"+addressID, resp, address); err != nil {
 		return nil, err

@@ -1,6 +1,9 @@
 package braintree
 
-import "time"
+import (
+	"encoding/xml"
+	"time"
+)
 
 // Card Types accepted by braintree.
 const (
@@ -49,4 +52,17 @@ type CreditCard struct {
 	Token                  string         `xml:"token"`
 	UniqueNumberIdentifier string         `xml:"unique-number-identifier"`
 	UpdatedAt              time.Time      `xml:"updated-at"`
+}
+
+// CreditCardInput is used to create or update a credit card on braintree.
+type CreditCardInput struct {
+	XMLName            xml.Name
+	BillingAddress     *AddressInput         `xml:"billing-address,omitempty"`
+	BillingAddressID   string                `xml:"billing-address-id,omitempty"`
+	CardholderName     string                `xml:"cardholder-name,omitempty"`
+	CustomerID         string                `xml:"customerID,omitempty"`
+	Options            *PaymentMethodOptions `xml:"options,omitempty"`
+	PaymentMethodNonce string                `xml:"payment-method-nonce,omitempty"`
+	RiskData           *RiskData             `xml:"risk-data,omitempty"`
+	Token              string                `xml:"token,omitempty"`
 }

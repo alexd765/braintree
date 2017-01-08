@@ -8,24 +8,20 @@ func TestCancelSubscription(t *testing.T) {
 
 	t.Run("existing", func(t *testing.T) {
 		t.Parallel()
-		customer, err := bt.Customer().Create(CustomerInput{FirstName: "first"})
-		if err != nil {
-			t.Fatalf("unexpected err: %s", err)
-		}
-
-		paymentMethodInput := &PaymentMethodInput{
-			CustomerID:         customer.ID,
-			PaymentMethodNonce: "fake-valid-visa-nonce",
-		}
-		card, err := bt.PaymentMethod().Create(paymentMethodInput)
+		customer, err := bt.Customer().Create(CustomerInput{
+			FirstName: "first",
+			CreditCard: CreditCardInput{
+				PaymentMethodNonce: "fake-valid-visa-nonce",
+			},
+		})
 		if err != nil {
 			t.Fatalf("unexpected err: %s", err)
 		}
 
 		subscription, err := bt.Subscription().Create(
 			SubscriptionInput{
-				PaymentMethodToken: card.Token,
 				PlanID:             "plan1",
+				PaymentMethodToken: customer.CreditCards[0].Token,
 			},
 		)
 		if err != nil {
@@ -55,24 +51,20 @@ func TestCreateSubscription(t *testing.T) {
 	t.Run("shouldWork", func(t *testing.T) {
 		t.Parallel()
 
-		customer, err := bt.Customer().Create(CustomerInput{FirstName: "first"})
-		if err != nil {
-			t.Fatalf("unexpected err: %s", err)
-		}
-
-		paymentMethodInput := &PaymentMethodInput{
-			CustomerID:         customer.ID,
-			PaymentMethodNonce: "fake-valid-visa-nonce",
-		}
-		card, err := bt.PaymentMethod().Create(paymentMethodInput)
+		customer, err := bt.Customer().Create(CustomerInput{
+			FirstName: "first",
+			CreditCard: CreditCardInput{
+				PaymentMethodNonce: "fake-valid-visa-nonce",
+			},
+		})
 		if err != nil {
 			t.Fatalf("unexpected err: %s", err)
 		}
 
 		subscription, err := bt.Subscription().Create(
 			SubscriptionInput{
-				PaymentMethodToken: card.Token,
 				PlanID:             "plan1",
+				PaymentMethodToken: customer.CreditCards[0].Token,
 			},
 		)
 		if err != nil {
@@ -124,24 +116,20 @@ func TestUpdateSubscription(t *testing.T) {
 	t.Run("existing", func(t *testing.T) {
 		t.Parallel()
 
-		customer, err := bt.Customer().Create(CustomerInput{FirstName: "first"})
-		if err != nil {
-			t.Fatalf("unexpected err: %s", err)
-		}
-
-		paymentMethodInput := &PaymentMethodInput{
-			CustomerID:         customer.ID,
-			PaymentMethodNonce: "fake-valid-visa-nonce",
-		}
-		card, err := bt.PaymentMethod().Create(paymentMethodInput)
+		customer, err := bt.Customer().Create(CustomerInput{
+			FirstName: "first",
+			CreditCard: CreditCardInput{
+				PaymentMethodNonce: "fake-valid-visa-nonce",
+			},
+		})
 		if err != nil {
 			t.Fatalf("unexpected err: %s", err)
 		}
 
 		subscription, err := bt.Subscription().Create(
 			SubscriptionInput{
-				PaymentMethodToken: card.Token,
 				PlanID:             "plan1",
+				PaymentMethodToken: customer.CreditCards[0].Token,
 			},
 		)
 		if err != nil {
