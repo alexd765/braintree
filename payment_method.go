@@ -1,18 +1,23 @@
 package braintree
 
-import "net/http"
+import (
+	"encoding/xml"
+	"net/http"
+)
 
 // PaymentMethodInput is used to create a payment method on braintree.
+//
 // CustomerID and PaymentMethodNonce are required.
 type PaymentMethodInput struct {
-	// BillingAddress     Address
-	BillingAddressID   string
-	CardholderName     string
-	CustomerID         string
-	Options            PaymentMethodOptions
-	PaymentMethodNonce string
-	RiskData           RiskData
-	Token              string
+	XMLName            xml.Name
+	BillingAddress     *AddressInput         `xml:"billing-address,omitempty"`
+	BillingAddressID   string                `xml:"billing-address-id,omitempty"`
+	CardholderName     string                `xml:"cardholder-name,omitempty"`
+	CustomerID         string                `xml:"customer-id"`
+	Options            *PaymentMethodOptions `xml:"options,omitempty"`
+	PaymentMethodNonce string                `xml:"payment-method-nonce"`
+	RiskData           *RiskData             `xml:"risk-data,omitempty"`
+	Token              string                `xml:"token,omitempty"`
 }
 
 // PaymentMethodOptions can be used as part of a PaymentMethodInput.
@@ -33,8 +38,9 @@ type PaymentMethodGW struct {
 //
 // Todo: return other payment methods like paypal as well.
 func (pgw PaymentMethodGW) Create(input *PaymentMethodInput) (*CreditCard, error) {
+	input.XMLName = xml.Name{Local: "payment-method"}
 	card := &CreditCard{}
-	if err := pgw.bt.execute(http.MethodPost, "payment_methods", card, input.sanitized()); err != nil {
+	if err := pgw.bt.execute(http.MethodPost, "payment_methods", card, input); err != nil {
 		return nil, err
 	}
 	return card, nil
@@ -55,43 +61,13 @@ func (pgw PaymentMethodGW) Find(token string) (*CreditCard, error) {
 }
 
 // Update a payment method on braintree.
+//
 // Token is required.
 func (pgw PaymentMethodGW) Update(input *PaymentMethodInput) (*CreditCard, error) {
+	input.XMLName = xml.Name{Local: "payment-method"}
 	card := &CreditCard{}
-	if err := pgw.bt.execute(http.MethodPut, "payment_methods/any/"+input.Token, card, input.sanitized()); err != nil {
+	if err := pgw.bt.execute(http.MethodPut, "payment_methods/any/"+input.Token, card, input); err != nil {
 		return nil, err
 	}
 	return card, nil
-}
-
-type paymentMethodInputSanitized struct {
-	XMLName string `xml:"payment-method"`
-	// BillingAddress     *Address               `xml:"billing-address,omitempty"`
-	BillingAddressID   string                `xml:"billing-address-id,omitempty"`
-	CardholderName     string                `xml:"cardholder-name,omitempty"`
-	CustomerID         string                `xml:"customer-id"`
-	Options            *PaymentMethodOptions `xml:"options,omitempty"`
-	PaymentMethodNonce string                `xml:"payment-method-nonce"`
-	RiskData           *RiskData             `xml:"risk-data,omitempty"`
-	Token              string                `xml:"token,omitempty"`
-}
-
-func (pmi PaymentMethodInput) sanitized() paymentMethodInputSanitized {
-	sanitized := paymentMethodInputSanitized{
-		BillingAddressID:   pmi.BillingAddressID,
-		CardholderName:     pmi.CardholderName,
-		CustomerID:         pmi.CustomerID,
-		PaymentMethodNonce: pmi.PaymentMethodNonce,
-		Token:              pmi.Token,
-	}
-	//	if pmi.BillingAddress != (Address{}) {
-	//		sanitized.BillingAddress = &pmi.BillingAddress
-	//	}
-	if pmi.Options != (PaymentMethodOptions{}) {
-		sanitized.Options = &pmi.Options
-	}
-	if pmi.RiskData != (RiskData{}) {
-		sanitized.RiskData = &pmi.RiskData
-	}
-	return sanitized
 }

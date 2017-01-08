@@ -15,7 +15,7 @@ func TestCreatePaymentMethod(t *testing.T) {
 		{
 			Name: "withOptions",
 			Input: PaymentMethodInput{
-				Options: PaymentMethodOptions{
+				Options: &PaymentMethodOptions{
 					MakeDefault: true,
 				},
 			},
@@ -23,8 +23,16 @@ func TestCreatePaymentMethod(t *testing.T) {
 		{
 			Name: "withRiskData",
 			Input: PaymentMethodInput{
-				RiskData: RiskData{
+				RiskData: &RiskData{
 					CustomerIP: "123.123.123.123",
+				},
+			},
+		},
+		{
+			Name: "withAddress",
+			Input: PaymentMethodInput{
+				BillingAddress: &AddressInput{
+					StreetAddress: "street",
 				},
 			},
 		},
