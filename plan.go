@@ -1,7 +1,11 @@
 package braintree
 
-import "time"
-import "net/http"
+import (
+	"net/http"
+	"time"
+
+	"github.com/shopspring/decimal"
+)
 
 // A Plan for a braintree subscription.
 type Plan struct {
@@ -15,7 +19,7 @@ type Plan struct {
 	ID   string `xml:"id"`
 	Name string `xml:"name"`
 	// NumberOfBillingCycles int    `xml:"number-of-billing-cycles"`
-	// Price
+	Price decimal.Decimal `xml:"price"`
 	// TrialDuration     int       `xml:"trial-duration"`
 	// TrialDurationUnit string    `xml:"trial-duration_unit"`
 	TrialPeriod bool      `xml:"trial-period"`

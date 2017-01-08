@@ -4,6 +4,8 @@ import (
 	"encoding/xml"
 	"net/http"
 	"time"
+
+	"github.com/shopspring/decimal"
 )
 
 const (
@@ -44,10 +46,10 @@ type Subscription struct {
 	// NextBillingPeriodAmount
 	// NumberOfBillingCycles int `xml:"number-of-billing-cycles"`
 	// PaidThroughDate
-	PaymentMethodToken string `xml:"payment-method-token"`
-	PlanID             string `xml:"plan-id"`
-	// Price
-	Status string `xml:"status"`
+	PaymentMethodToken string          `xml:"payment-method-token"`
+	PlanID             string          `xml:"plan-id"`
+	Price              decimal.Decimal `xml:"price"`
+	Status             string          `xml:"status"`
 	// StatusHistory
 	// Transactions
 	// TrialDuration     int       `xml:"trial-duration"`
@@ -70,10 +72,10 @@ type SubscriptionInput struct {
 	PaymentMethodNonce string
 	PaymentMethodToken string
 	PlanID             string
-	// Price
-	TrialDuration     int
-	TrialDurationUnit string
-	TrialPeriod       bool
+	Price              decimal.Decimal
+	TrialDuration      int
+	TrialDurationUnit  string
+	TrialPeriod        bool
 }
 
 // SubscriptionGW is a Subscription Gateway.
@@ -133,17 +135,17 @@ type subscriptionInputSanitized struct {
 	MerchantAccountID string `xml:"merchant-account-id,omitempty"`
 	NeverExpires      bool   `xml:"never-expires,omitempty"`
 	// Options
-	PaymentMethodNonce string `xml:"payment-method-nonce,omitempty"`
-	PaymentMethodToken string `xml:"payment-method-token,omitempty"`
-	PlanID             string `xml:"plan-id"`
-	// Price
-	TrialDuration     int    `xml:"trial-duration,omitempty"`
-	TrialDurationUnit string `xml:"trial-duration-unit,omitempty"`
-	TrialPeriod       bool   `xml:"trial-period,omitempty"`
+	PaymentMethodNonce string           `xml:"payment-method-nonce,omitempty"`
+	PaymentMethodToken string           `xml:"payment-method-token,omitempty"`
+	PlanID             string           `xml:"plan-id"`
+	Price              *decimal.Decimal `xml:"price,omitempty"`
+	TrialDuration      int              `xml:"trial-duration,omitempty"`
+	TrialDurationUnit  string           `xml:"trial-duration-unit,omitempty"`
+	TrialPeriod        bool             `xml:"trial-period,omitempty"`
 }
 
 func (si SubscriptionInput) sanitize() subscriptionInputSanitized {
-	return subscriptionInputSanitized{
+	sis := subscriptionInputSanitized{
 		BillingDayOfMonth:  si.BillingDayOfMonth,
 		ID:                 si.ID,
 		MerchantAccountID:  si.MerchantAccountID,
@@ -154,4 +156,8 @@ func (si SubscriptionInput) sanitize() subscriptionInputSanitized {
 		TrialDurationUnit:  si.TrialDurationUnit,
 		TrialPeriod:        si.TrialPeriod,
 	}
+	if si.Price != (decimal.Decimal{}) {
+		sis.Price = &si.Price
+	}
+	return sis
 }

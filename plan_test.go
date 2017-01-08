@@ -3,6 +3,8 @@ package braintree
 import (
 	"os"
 	"testing"
+
+	"github.com/shopspring/decimal"
 )
 
 func TestAllPlans(t *testing.T) {
@@ -19,6 +21,9 @@ func TestAllPlans(t *testing.T) {
 		}
 		if plans[0].ID != "plan1" {
 			t.Errorf("expected plan.ID == plan1, got plan.ID == %s", plans[0].ID)
+		}
+		if !plans[0].Price.Equals(decimal.NewFromFloat(5)) {
+			t.Errorf("plan.Price: expected 5, got %s", plans[0].Price)
 		}
 	})
 

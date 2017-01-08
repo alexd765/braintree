@@ -1,6 +1,7 @@
 package braintree
 
 import "testing"
+import "github.com/shopspring/decimal"
 
 func TestCancelSubscription(t *testing.T) {
 	t.Parallel()
@@ -99,8 +100,8 @@ func TestFindSubscription(t *testing.T) {
 		if err != nil {
 			t.Fatalf("unexpected err: %s", err)
 		}
-		if subscription == nil {
-			t.Error("subscription unexpected nil")
+		if !subscription.Price.Equals(decimal.NewFromFloat(5)) {
+			t.Errorf("subscription price: got %s, want 5", subscription.Price)
 		}
 	})
 
@@ -147,15 +148,18 @@ func TestUpdateSubscription(t *testing.T) {
 			t.Fatalf("unexpected err: %s", err)
 		}
 
-		_, err = bt.Subscription().Update(
+		subscription, err = bt.Subscription().Update(
 			SubscriptionInput{
-				ID:           subscription.ID,
-				PlanID:       "plan1",
-				NeverExpires: true,
+				ID:     subscription.ID,
+				PlanID: "plan1",
+				Price:  decimal.NewFromFloat(6),
 			},
 		)
 		if err != nil {
 			t.Fatalf("unexpected err: %s", err)
+		}
+		if !subscription.Price.Equals(decimal.NewFromFloat(6)) {
+			t.Errorf("subscription.Price: got %s, want 6", subscription.Price)
 		}
 	})
 
