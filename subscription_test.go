@@ -10,7 +10,7 @@ func TestCancelSubscription(t *testing.T) {
 		t.Parallel()
 		customer, err := bt.Customer().Create(CustomerInput{
 			FirstName: "first",
-			CreditCard: CreditCardInput{
+			CreditCard: &CreditCardInput{
 				PaymentMethodNonce: "fake-valid-visa-nonce",
 			},
 		})
@@ -53,7 +53,7 @@ func TestCreateSubscription(t *testing.T) {
 
 		customer, err := bt.Customer().Create(CustomerInput{
 			FirstName: "first",
-			CreditCard: CreditCardInput{
+			CreditCard: &CreditCardInput{
 				PaymentMethodNonce: "fake-valid-visa-nonce",
 			},
 		})
@@ -118,7 +118,7 @@ func TestUpdateSubscription(t *testing.T) {
 
 		customer, err := bt.Customer().Create(CustomerInput{
 			FirstName: "first",
-			CreditCard: CreditCardInput{
+			CreditCard: &CreditCardInput{
 				PaymentMethodNonce: "fake-valid-visa-nonce",
 			},
 		})

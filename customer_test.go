@@ -11,7 +11,7 @@ func TestCreateCustomer(t *testing.T) {
 
 	t.Run("noID", func(t *testing.T) {
 		t.Parallel()
-		want := CustomerInput{FirstName: "first", RiskData: RiskData{CustomerIP: "123.123.123.123"}}
+		want := CustomerInput{FirstName: "first", RiskData: &RiskData{CustomerIP: "123.123.123.123"}}
 		got, err := bt.Customer().Create(want)
 		if err != nil {
 			t.Fatalf("unexpected err: %s", err)
