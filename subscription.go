@@ -1,6 +1,7 @@
 package braintree
 
 import (
+	"database/sql"
 	"encoding/xml"
 	"net/http"
 	"time"
@@ -27,28 +28,28 @@ type Subscription struct {
 	BillingPeriodStartDate btdate.Date     `xml:"billing-period-start-date"`
 	CreatedAt              time.Time       `xml:"created-at"`
 	CurrentBillingCycle    int             `xml:"current-billing-cycle"`
-	// DaysPastDue         int       `xml:"days-past-due"`
+	DaysPastDue            sql.NullInt64   `xml:"days-past-due"`
 	// Descriptor
 	// Discounts
-	// FailureCount int    `xml:"failure-count"`
-	ID                string `xml:"id"`
-	MerchantAccountID string `xml:"merchant-account-id"`
-	// NeverExpires      bool   `xml:"never-expires"`
+	FailureCount            int             `xml:"failure-count"`
+	ID                      string          `xml:"id"`
+	MerchantAccountID       string          `xml:"merchant-account-id"`
+	NeverExpires            bool            `xml:"never-expires"`
 	NextBillAmount          decimal.Decimal `xml:"next-bill-amount"`
 	NextBillingDate         btdate.Date     `xml:"next-billing-date"`
 	NextBillingPeriodAmount decimal.Decimal `xml:"next-billing-period-amount"`
-	// NumberOfBillingCycles int `xml:"number-of-billing-cycles"`
-	PaidThroughDate    btdate.Date     `xml:"paid-through-date"`
-	PaymentMethodToken string          `xml:"payment-method-token"`
-	PlanID             string          `xml:"plan-id"`
-	Price              decimal.Decimal `xml:"price"`
-	Status             string          `xml:"status"`
+	NumberOfBillingCycles   sql.NullInt64   `xml:"number-of-billing-cycles"`
+	PaidThroughDate         btdate.Date     `xml:"paid-through-date"`
+	PaymentMethodToken      string          `xml:"payment-method-token"`
+	PlanID                  string          `xml:"plan-id"`
+	Price                   decimal.Decimal `xml:"price"`
+	Status                  string          `xml:"status"`
 	// StatusHistory
 	// Transactions
-	// TrialDuration     int       `xml:"trial-duration"`
-	// TrialDurationUnit string    `xml:"trial-duration-unit"`
-	// TrialPeriod bool      `xml:"trial-period"`
-	UpdatedAt time.Time `xml:"updated-at"`
+	TrialDuration     sql.NullInt64  `xml:"trial-duration"`
+	TrialDurationUnit sql.NullString `xml:"trial-duration-unit"`
+	TrialPeriod       bool           `xml:"trial-period"`
+	UpdatedAt         time.Time      `xml:"updated-at"`
 }
 
 // SubscriptionInput is used to create or update a subscription.
