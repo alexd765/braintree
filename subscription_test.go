@@ -1,7 +1,11 @@
 package braintree
 
-import "testing"
-import "github.com/shopspring/decimal"
+import (
+	"testing"
+
+	"github.com/alexd765/braintree/btdate"
+	"github.com/shopspring/decimal"
+)
 
 func TestCancelSubscription(t *testing.T) {
 	t.Parallel()
@@ -72,6 +76,9 @@ func TestCreateSubscription(t *testing.T) {
 		}
 		if subscription.PlanID != "plan1" {
 			t.Errorf("subscription.PlanID: got: %s, want: plan1", subscription.PlanID)
+		}
+		if subscription.BillingPeriodStartDate != btdate.Today() {
+			t.Errorf("subscription.BillingPeriodStartDate: got %s, want %s", subscription.BillingPeriodStartDate, btdate.Today())
 		}
 	})
 

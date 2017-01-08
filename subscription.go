@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/alexd765/braintree/btdate"
 	"github.com/shopspring/decimal"
 )
 
@@ -21,11 +22,11 @@ const (
 type Subscription struct {
 	// AddOns
 	// Balance
-	// BillingPeriodEndDate
-	BillingDayOfMonth int `xml:"billing-day-of-month"`
-	// BillingPeriodStartDate
-	CreatedAt           time.Time `xml:"created-at"`
-	CurrentBillingCycle int       `xml:"current-billing-cycle"`
+	BillingPeriodEndDate   btdate.Date `xml:"billing-period-end-date"`
+	BillingDayOfMonth      int         `xml:"billing-day-of-month"`
+	BillingPeriodStartDate btdate.Date `xml:"billing-period-start-date"`
+	CreatedAt              time.Time   `xml:"created-at"`
+	CurrentBillingCycle    int         `xml:"current-billing-cycle"`
 	// DaysPastDue         int       `xml:"days-past-due"`
 	// Descriptor
 	// Discounts
@@ -34,10 +35,10 @@ type Subscription struct {
 	// MerchantAccountID string `xml:"merchant-account-id"`
 	// NeverExpires      bool   `xml:"never-expires"`
 	// NextBillAmount
-	// NextBillingDate
+	NextBillingDate btdate.Date `xml:"next-billing-date"`
 	// NextBillingPeriodAmount
 	// NumberOfBillingCycles int `xml:"number-of-billing-cycles"`
-	// PaidThroughDate
+	PaidThroughDate    btdate.Date     `xml:"paid-through-date"`
 	PaymentMethodToken string          `xml:"payment-method-token"`
 	PlanID             string          `xml:"plan-id"`
 	Price              decimal.Decimal `xml:"price"`
@@ -57,10 +58,10 @@ type SubscriptionInput struct {
 	BillingDayOfMonth int `xml:"billing-day-of-month,omitempty"`
 	// Descriptor
 	// Discounts
-	// FirstBillingDate
-	ID                string `xml:"id,omitempty"`
-	MerchantAccountID string `xml:"merchant-account-id,omitempty"`
-	NeverExpires      bool   `xml:"never-expires,omitempty"`
+	FirstBillingDate  *btdate.Date `xml:"first-billing-date"`
+	ID                string       `xml:"id,omitempty"`
+	MerchantAccountID string       `xml:"merchant-account-id,omitempty"`
+	NeverExpires      bool         `xml:"never-expires,omitempty"`
 	// Options
 	PaymentMethodNonce string           `xml:"payment-method-nonce,omitempty"`
 	PaymentMethodToken string           `xml:"payment-method-token,omitempty"`
