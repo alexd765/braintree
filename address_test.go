@@ -16,24 +16,19 @@ func TestCreateAddress(t *testing.T) {
 			t.Fatalf("unexpected err: %s", err)
 		}
 
-		address := &Address{CustomerID: customer.ID, StreetAddress: "street"}
-		got, err := bt.Address().Create(address)
+		got, err := bt.Address().Create(customer.ID, AddressInput{StreetAddress: "street"})
 		if err != nil {
 			t.Fatalf("unexpected err: %s", err)
 		}
-		address.ID = got.ID
-		address.CreatedAt = got.CreatedAt
-		address.UpdatedAt = got.UpdatedAt
-		if !reflect.DeepEqual(got, address) {
-			t.Errorf("got: %+v\nwant: %+v", got, address)
+		if got.StreetAddress != "street" {
+			t.Errorf("StreetAddress: got %s, want street", got.StreetAddress)
 		}
 	})
 
 	t.Run("withoutID", func(t *testing.T) {
 		t.Parallel()
 
-		address := &Address{StreetAddress: "street"}
-		if _, err := bt.Address().Create(address); err == nil || err.Error() != "404 Not Found" {
+		if _, err := bt.Address().Create("", AddressInput{StreetAddress: "street"}); err == nil || err.Error() != "404 Not Found" {
 			t.Errorf("got: %v, want: 404 Not Found", err)
 		}
 	})
@@ -49,8 +44,7 @@ func TestDeleteAddress(t *testing.T) {
 			t.Fatalf("unexpected err: %s", err)
 		}
 
-		address := &Address{CustomerID: customer.ID, StreetAddress: "street"}
-		address, err = bt.Address().Create(address)
+		address, err := bt.Address().Create(customer.ID, AddressInput{StreetAddress: "street"})
 		if err != nil {
 			t.Fatalf("unexpected err: %s", err)
 		}
@@ -106,29 +100,27 @@ func TestUpdateAddress(t *testing.T) {
 			t.Fatalf("unexpected err: %s", err)
 		}
 
-		address := &Address{CustomerID: customer.ID, StreetAddress: "street"}
-		want, err := bt.Address().Create(address)
+		address, err := bt.Address().Create(customer.ID, AddressInput{StreetAddress: "street"})
 		if err != nil {
 			t.Fatalf("unexpected err: %s", err)
 		}
 
-		want.FirstName = "test2"
-		got, err := bt.Address().Update(want)
+		got, err := bt.Address().Update(customer.ID, address.ID, AddressInput{FirstName: "test2"})
 		if err != nil {
 			t.Fatalf("unexpected err: %s", err)
 		}
-		want.CreatedAt = got.CreatedAt
-		want.UpdatedAt = got.UpdatedAt
-		if !reflect.DeepEqual(got, want) {
-			t.Errorf("got: %+v\nwant: %+v", got, want)
+		if got.FirstName != "test2" {
+			t.Errorf("FirstName: got %s, want test2", got.FirstName)
+		}
+		if got.StreetAddress != "street" {
+			t.Errorf("StreetAddress: got %s, want street", got.StreetAddress)
 		}
 	})
 
 	t.Run("nonExisting", func(t *testing.T) {
 		t.Parallel()
 
-		address := &Address{CustomerID: "cus1", ID: "bla", FirstName: "first"}
-		if _, err := bt.Address().Update(address); err == nil || err.Error() != "404 Not Found" {
+		if _, err := bt.Address().Update("cus1", "bla", AddressInput{FirstName: "first"}); err == nil || err.Error() != "404 Not Found" {
 			t.Errorf("got: %v, want: 404 Not Found", err)
 		}
 	})
