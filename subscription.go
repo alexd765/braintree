@@ -21,22 +21,22 @@ const (
 // A Subscription on braintree.
 type Subscription struct {
 	// AddOns
-	// Balance
-	BillingPeriodEndDate   btdate.Date `xml:"billing-period-end-date"`
-	BillingDayOfMonth      int         `xml:"billing-day-of-month"`
-	BillingPeriodStartDate btdate.Date `xml:"billing-period-start-date"`
-	CreatedAt              time.Time   `xml:"created-at"`
-	CurrentBillingCycle    int         `xml:"current-billing-cycle"`
+	Balance                decimal.Decimal `xml:"balance"`
+	BillingPeriodEndDate   btdate.Date     `xml:"billing-period-end-date"`
+	BillingDayOfMonth      int             `xml:"billing-day-of-month"`
+	BillingPeriodStartDate btdate.Date     `xml:"billing-period-start-date"`
+	CreatedAt              time.Time       `xml:"created-at"`
+	CurrentBillingCycle    int             `xml:"current-billing-cycle"`
 	// DaysPastDue         int       `xml:"days-past-due"`
 	// Descriptor
 	// Discounts
 	// FailureCount int    `xml:"failure-count"`
-	ID string `xml:"id"`
-	// MerchantAccountID string `xml:"merchant-account-id"`
+	ID                string `xml:"id"`
+	MerchantAccountID string `xml:"merchant-account-id"`
 	// NeverExpires      bool   `xml:"never-expires"`
-	// NextBillAmount
-	NextBillingDate btdate.Date `xml:"next-billing-date"`
-	// NextBillingPeriodAmount
+	NextBillAmount          decimal.Decimal `xml:"next-bill-amount"`
+	NextBillingDate         btdate.Date     `xml:"next-billing-date"`
+	NextBillingPeriodAmount decimal.Decimal `xml:"next-billing-period-amount"`
 	// NumberOfBillingCycles int `xml:"number-of-billing-cycles"`
 	PaidThroughDate    btdate.Date     `xml:"paid-through-date"`
 	PaymentMethodToken string          `xml:"payment-method-token"`
