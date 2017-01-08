@@ -136,11 +136,11 @@ func TestUpdateSubscription(t *testing.T) {
 			t.Fatalf("unexpected err: %s", err)
 		}
 
+		wantPrice := decimal.NewFromFloat(6)
 		subscription, err = bt.Subscription().Update(
 			SubscriptionInput{
-				ID:     subscription.ID,
-				PlanID: "plan1",
-				Price:  decimal.NewFromFloat(6),
+				ID:    subscription.ID,
+				Price: &wantPrice,
 			},
 		)
 		if err != nil {
