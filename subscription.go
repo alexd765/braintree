@@ -45,7 +45,7 @@ type Subscription struct {
 	Price                   decimal.Decimal `xml:"price"`
 	Status                  string          `xml:"status"`
 	// StatusHistory
-	// Transactions
+	Transactions      []Transaction  `xml:"transactions>transaction"`
 	TrialDuration     sql.NullInt64  `xml:"trial-duration"`
 	TrialDurationUnit sql.NullString `xml:"trial-duration-unit"`
 	TrialPeriod       bool           `xml:"trial-period"`
