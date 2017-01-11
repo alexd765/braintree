@@ -26,17 +26,31 @@ func TestMarshalXML(t *testing.T) {
 func TestUnmarshalXML(t *testing.T) {
 	t.Parallel()
 
-	str := "<custom-fields><key1>value1</key1><key2>value2</key2></custom-fields>"
-	cf := CustomFields{}
-	if err := xml.Unmarshal([]byte(str), &cf); err != nil {
-		t.Fatalf("unexpected err: %s", err)
-	}
-	got := cf["key1"]
-	if got != "value1" {
-		t.Errorf("want: value1, got: %s", got)
-	}
-	got = cf["key2"]
-	if got != "value2" {
-		t.Errorf("want: value2, got: %s", got)
-	}
+	t.Run("valid", func(t *testing.T) {
+		t.Parallel()
+
+		str := "<custom-fields><key1>value1</key1><key2>value2</key2></custom-fields>"
+		cf := CustomFields{}
+		if err := xml.Unmarshal([]byte(str), &cf); err != nil {
+			t.Fatalf("unexpected err: %s", err)
+		}
+		got := cf["key1"]
+		if got != "value1" {
+			t.Errorf("want: value1, got: %s", got)
+		}
+		got = cf["key2"]
+		if got != "value2" {
+			t.Errorf("want: value2, got: %s", got)
+		}
+	})
+
+	t.Run("malformed", func(t *testing.T) {
+		t.Parallel()
+
+		str := "<custom-fields><key1></custom-fields>"
+		cf := CustomFields{}
+		if err := xml.Unmarshal([]byte(str), &cf); err == nil {
+			t.Errorf("want: an error, got nil")
+		}
+	})
 }
