@@ -1,6 +1,7 @@
 package braintree
 
 import (
+	"net/http"
 	"time"
 
 	"github.com/shopspring/decimal"
@@ -86,4 +87,18 @@ type Transaction struct {
 	UpdatedAt time.Time `xml:"updated-at"`
 	// VemnoAccount
 	// VoiceRefferalNumber
+}
+
+// TransactionGW is a transaction gateway.
+type TransactionGW struct {
+	bt *Braintree
+}
+
+// Find a transaction with a given transaction id on braintree.
+func (tgw TransactionGW) Find(id string) (*Transaction, error) {
+	transaction := &Transaction{}
+	if err := tgw.bt.execute(http.MethodGet, "transactions/"+id, transaction, nil); err != nil {
+		return nil, err
+	}
+	return transaction, nil
 }
