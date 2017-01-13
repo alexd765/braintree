@@ -23,7 +23,10 @@ func TestCreateTransaction(t *testing.T) {
 		}
 
 		transaction, err := bt.Transaction().Create(TransactionInput{
-			Amount:             decimal.NewFromFloat(3),
+			Amount: decimal.NewFromFloat(3),
+			Options: &TransactionOptions{
+				StoreInVaultOnSuccess: true,
+			},
 			PaymentMethodToken: customer.CreditCards[0].Token,
 			Type:               TransactionTypeSale,
 		})

@@ -107,15 +107,15 @@ type TransactionInput struct {
 	Customer         *CustomerInput  `xml:"customer,omitempty"`
 	CustomerID       string          `xml:"customer-id,omitempty"`
 	// Descriptor
-	DeviceData        string `xml:"device-date,omitempty"`
-	DeviceSessionID   string `xml:"device-session-id,omitempty"`
-	MerchantAccountID string `xml:"merchant-account-id,omitempty"`
-	// Options
-	OrderID             string `xml:"order-id,omitempty"`
-	PaymentMethodNonce  string `xml:"payment-method-nonce,omitempty"`
-	PaymentMethodToken  string `xml:"payment-method_token,omitempty"`
-	PurchaseOrderNumber string `xml:"purchase-order-number,omitempty"`
-	Recurring           bool   `xml:"recurring,omitempty"`
+	DeviceData          string              `xml:"device-date,omitempty"`
+	DeviceSessionID     string              `xml:"device-session-id,omitempty"`
+	MerchantAccountID   string              `xml:"merchant-account-id,omitempty"`
+	Options             *TransactionOptions `xml:"options,omitempty"`
+	OrderID             string              `xml:"order-id,omitempty"`
+	PaymentMethodNonce  string              `xml:"payment-method-nonce,omitempty"`
+	PaymentMethodToken  string              `xml:"payment-method_token,omitempty"`
+	PurchaseOrderNumber string              `xml:"purchase-order-number,omitempty"`
+	Recurring           bool                `xml:"recurring,omitempty"`
 	// RiskData
 	// ServiceFeeAmount
 	Shipping          *AddressInput `xml:"shipping,omitempty"`
@@ -125,6 +125,17 @@ type TransactionInput struct {
 	// ThreeDSecurePassThru
 	TransactionSource string `xml:"transaction-source,omitempty"`
 	Type              string `xml:"type,omitempty"`
+}
+
+// TransactionOptions are optional settings for creating a transaction.
+type TransactionOptions struct {
+	AddBillingAddressToPaymentMethod bool `xml:"add-billing-address-to-payment-method,omitempty"`
+	HoldInEscrow                     bool `xml:"hold-in-escrow,omitempty"`
+	// Paypal
+	StoreInVault          bool `xml:"store-in-vault,omitempty"`
+	StoreInVaultOnSuccess bool `xml:"store-in-vault-on-success,omitempty"`
+	SubmitForSettlement   bool `xml:"submit-or-settlement,omitempty"`
+	// ThreeDSecure
 }
 
 // TransactionGW is a transaction gateway.
