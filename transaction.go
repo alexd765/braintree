@@ -1,6 +1,7 @@
 package braintree
 
 import (
+	"encoding/xml"
 	"net/http"
 	"time"
 
@@ -31,6 +32,12 @@ const (
 	StatusSettling               = "settling"
 	StatusSubmittedForSettlement = "submitted_for_settlement"
 	StatusVoided                 = "status_voided"
+)
+
+// Types of a transaction.
+const (
+	TransactionTypeSale   = "sale"
+	TransactionTypeCredit = "credit"
 )
 
 // A Transaction on braintree.
@@ -89,9 +96,53 @@ type Transaction struct {
 	// VoiceRefferalNumber
 }
 
+// TransactionInput is used to do a sale.
+type TransactionInput struct {
+	XMLName          xml.Name
+	Amount           decimal.Decimal `xml:"amount"`
+	Billing          *AddressInput   `xml:"billing,omitempty"`
+	BillingAddressID string          `xml:"billing-address-id,omitempty"`
+	Channel          string          `xml:"channel,omitempty"`
+	CustomFields     CustomFields    `xml:"custom-fields,omitempty"`
+	Customer         *CustomerInput  `xml:"customer,omitempty"`
+	CustomerID       string          `xml:"customer-id,omitempty"`
+	// Descriptor
+	DeviceData        string `xml:"device-date,omitempty"`
+	DeviceSessionID   string `xml:"device-session-id,omitempty"`
+	MerchantAccountID string `xml:"merchant-account-id,omitempty"`
+	// Options
+	OrderID             string `xml:"order-id,omitempty"`
+	PaymentMethodNonce  string `xml:"payment-method-nonce,omitempty"`
+	PaymentMethodToken  string `xml:"payment-method_token,omitempty"`
+	PurchaseOrderNumber string `xml:"purchase-order-number,omitempty"`
+	Recurring           bool   `xml:"recurring,omitempty"`
+	// RiskData
+	// ServiceFeeAmount
+	Shipping          *AddressInput `xml:"shipping,omitempty"`
+	ShippingAddressID string        `xml:"shipping-address-id,omitempty"`
+	// TaxAmount
+	TaxExempt bool `xml:"tax-exempt,omitempty"`
+	// ThreeDSecurePassThru
+	TransactionSource string `xml:"transaction-source,omitempty"`
+	Type              string `xml:"type,omitempty"`
+}
+
 // TransactionGW is a transaction gateway.
 type TransactionGW struct {
 	bt *Braintree
+}
+
+// Create a transaction on braintree.
+//
+// One of PaymentMethodNonce or PaymentMethodToken is required.
+// Amount and Type are required.
+func (tgw TransactionGW) Create(transaction TransactionInput) (*Transaction, error) {
+	transaction.XMLName = xml.Name{Local: "transaction"}
+	resp := &Transaction{}
+	if err := tgw.bt.execute(http.MethodPost, "transactions", resp, transaction); err != nil {
+		return nil, err
+	}
+	return resp, nil
 }
 
 // Find a transaction with a given transaction id on braintree.
