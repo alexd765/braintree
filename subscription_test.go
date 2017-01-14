@@ -102,6 +102,12 @@ func TestFindSubscription(t *testing.T) {
 		if !subscription.Price.Equals(decimal.NewFromFloat(5)) {
 			t.Errorf("subscription price: got %s, want 5", subscription.Price)
 		}
+		if len(subscription.Transactions) == 0 {
+			t.Fatalf("subscription.Transactions: got 0, want more")
+		}
+		if planID := subscription.Transactions[0].PlanID; planID != "plan1" {
+			t.Errorf("subscription.Transactions[0].PlanID: got %s, want plan1", planID)
+		}
 	})
 
 	t.Run("nonExisting", func(t *testing.T) {
