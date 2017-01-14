@@ -27,11 +27,11 @@ const (
 	StatusSettlementDeclined     = "settlement_declined"
 	StatusFailed                 = "failed"
 	StatusGatewayRejected        = "gateway_reject"
-	StatusProcessorDeclined      = "status_processor_declined"
+	StatusProcessorDeclined      = "processor_declined"
 	StatusSettled                = "settled"
 	StatusSettling               = "settling"
 	StatusSubmittedForSettlement = "submitted_for_settlement"
-	StatusVoided                 = "status_voided"
+	StatusVoided                 = "voided"
 )
 
 // Types of a transaction.
@@ -134,7 +134,7 @@ type TransactionOptions struct {
 	// Paypal
 	StoreInVault          bool `xml:"store-in-vault,omitempty"`
 	StoreInVaultOnSuccess bool `xml:"store-in-vault-on-success,omitempty"`
-	SubmitForSettlement   bool `xml:"submit-or-settlement,omitempty"`
+	SubmitForSettlement   bool `xml:"submit-for-settlement,omitempty"`
 	// ThreeDSecure
 }
 
@@ -160,6 +160,15 @@ func (tgw TransactionGW) Create(transaction TransactionInput) (*Transaction, err
 func (tgw TransactionGW) Find(id string) (*Transaction, error) {
 	transaction := &Transaction{}
 	if err := tgw.bt.execute(http.MethodGet, "transactions/"+id, transaction, nil); err != nil {
+		return nil, err
+	}
+	return transaction, nil
+}
+
+// Void a transactionon braintree before settlement.
+func (tgw TransactionGW) Void(id string) (*Transaction, error) {
+	transaction := &Transaction{}
+	if err := tgw.bt.execute(http.MethodPut, "transactions/"+id+"/void", transaction, nil); err != nil {
 		return nil, err
 	}
 	return transaction, nil
