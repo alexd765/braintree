@@ -26,12 +26,13 @@ func TestCreateCustomer(t *testing.T) {
 
 	t.Run("existing", func(t *testing.T) {
 		t.Parallel()
-		got, err := bt.Customer().Create(CustomerInput{ID: "cus1", FirstName: "first"})
-		if err == nil || err.Error() != "422 Unprocessable Entity" {
-			t.Errorf("got: %v, want: 422 Unprocessable Entity", err)
+		_, err := bt.Customer().Create(CustomerInput{ID: "cus1", FirstName: "first"})
+		apiErr, ok := err.(*APIError)
+		if !ok {
+			t.Errorf("expected error of type APIError")
 		}
-		if got != nil {
-			t.Errorf("got: %+v, want: <nil>", got)
+		if apiErr == nil || apiErr.Code != 91609 {
+			t.Errorf("api error code: got %v, want 91609", apiErr)
 		}
 	})
 }
