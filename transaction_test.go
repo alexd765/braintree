@@ -46,8 +46,12 @@ func TestCreateTransaction(t *testing.T) {
 			Amount: decimal.NewFromFloat(3),
 			Type:   TransactionTypeSale,
 		})
-		if err == nil || err.Error() != "422 Unprocessable Entity" {
-			t.Errorf("got: %v, want: 422 Unprocessable Entity", err)
+		apiErr, ok := err.(*APIError)
+		if !ok {
+			t.Errorf("expected error of type APIError")
+		}
+		if apiErr == nil || apiErr.Code != 91508 {
+			t.Errorf("api error code: got %v, want 91508", apiErr)
 		}
 	})
 }
