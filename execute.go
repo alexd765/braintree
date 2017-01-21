@@ -3,7 +3,6 @@ package braintree
 import (
 	"bytes"
 	"encoding/xml"
-	"errors"
 	"net/http"
 )
 
@@ -42,7 +41,6 @@ func (bt *Braintree) execute(method, path string, v interface{}, payload interfa
 		return xml.NewDecoder(resp.Body).Decode(v)
 
 	default:
-		// Todo: Parse api error response
-		return errors.New(resp.Status)
+		return parseError(resp)
 	}
 }

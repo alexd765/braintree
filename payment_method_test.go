@@ -60,10 +60,14 @@ func TestCreatePaymentMethod(t *testing.T) {
 
 	t.Run("noCustomerID", func(t *testing.T) {
 		t.Parallel()
-		if _, err := bt.PaymentMethod().Create(PaymentMethodInput{PaymentMethodNonce: "fake-valid-visa-nonce"}); err == nil || err.Error() != "422 Unprocessable Entity" {
-			t.Errorf("got: %v, want: 422 Unprocessable Entity", err)
+		_, err := bt.PaymentMethod().Create(PaymentMethodInput{PaymentMethodNonce: "fake-valid-visa-nonce"})
+		apiErr, ok := err.(*APIError)
+		if !ok {
+			t.Error("expected APIError")
 		}
-
+		if apiErr == nil || apiErr.Code != 91704 {
+			t.Errorf("got %v, want error code 91704", apiErr)
+		}
 	})
 }
 

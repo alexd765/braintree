@@ -32,6 +32,19 @@ func TestCreateAddress(t *testing.T) {
 			t.Errorf("got: %v, want: 404 Not Found", err)
 		}
 	})
+
+	t.Run("empty", func(t *testing.T) {
+		t.Parallel()
+
+		_, err := bt.Address().Create("cus1", AddressInput{})
+		apiErr, ok := err.(*APIError)
+		if !ok {
+			t.Fatalf("expected APIError")
+		}
+		if apiErr == nil || apiErr.Code != 81801 {
+			t.Errorf("got %v, want error code 81801", apiErr)
+		}
+	})
 }
 
 func TestDeleteAddress(t *testing.T) {
