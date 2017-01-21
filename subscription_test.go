@@ -83,8 +83,13 @@ func TestCreateSubscription(t *testing.T) {
 	})
 
 	t.Run("withoutToken", func(t *testing.T) {
-		if _, err := bt.Subscription().Create(SubscriptionInput{PlanID: "plan1"}); err == nil || err.Error() != "422 Unprocessable Entity" {
-			t.Errorf("got: %v, want: 422 Unprocessable Entity", err)
+		_, err := bt.Subscription().Create(SubscriptionInput{PlanID: "plan1"})
+		apiErr, ok := err.(*APIError)
+		if !ok {
+			t.Fatalf("expected APIError")
+		}
+		if apiErr == nil || apiErr.Code != 91903 {
+			t.Errorf("got %v, want error code 91903", apiErr)
 		}
 	})
 }

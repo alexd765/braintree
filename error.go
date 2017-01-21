@@ -25,11 +25,12 @@ func parseError(resp *http.Response) error {
 	}
 
 	apiErr := struct {
-		XMLName     xml.Name   `xml:"api-error-response"`
-		Address     []APIError `xml:"errors>address>errors>error"`
-		CreditCard  []APIError `xml:"errors>credit-card>errors>error"`
-		Customer    []APIError `xml:"errors>customer>errors>error"`
-		Transaction []APIError `xml:"errors>transaction>errors>error"`
+		XMLName      xml.Name   `xml:"api-error-response"`
+		Address      []APIError `xml:"errors>address>errors>error"`
+		CreditCard   []APIError `xml:"errors>credit-card>errors>error"`
+		Customer     []APIError `xml:"errors>customer>errors>error"`
+		Subscription []APIError `xml:"errors>subscription>errors>error"`
+		Transaction  []APIError `xml:"errors>transaction>errors>error"`
 	}{}
 
 	if err := xml.NewDecoder(resp.Body).Decode(&apiErr); err != nil {
@@ -38,6 +39,7 @@ func parseError(resp *http.Response) error {
 
 	errs := append(apiErr.Address, apiErr.CreditCard...)
 	errs = append(errs, apiErr.Customer...)
+	errs = append(errs, apiErr.Subscription...)
 	errs = append(errs, apiErr.Transaction...)
 	if len(errs) == 0 {
 		// Return status code for errors we aren't handling yet.
