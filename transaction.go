@@ -165,6 +165,17 @@ func (tgw TransactionGW) Find(id string) (*Transaction, error) {
 	return transaction, nil
 }
 
+// Settle a transaction on braintree.
+//
+// This will only work in the sandbox environment.
+func (tgw TransactionGW) Settle(id string) (*Transaction, error) {
+	transaction := &Transaction{}
+	if err := tgw.bt.execute(http.MethodPut, "transactions/"+id+"/settle", transaction, nil); err != nil {
+		return nil, err
+	}
+	return transaction, nil
+}
+
 // Void a transactionon braintree before settlement.
 func (tgw TransactionGW) Void(id string) (*Transaction, error) {
 	transaction := &Transaction{}
