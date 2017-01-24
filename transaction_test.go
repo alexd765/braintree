@@ -66,8 +66,8 @@ func TestFindTransaction(t *testing.T) {
 		if err != nil {
 			t.Fatalf("unexpected err: %s", err)
 		}
-		if transaction.Status != StatusSettled {
-			t.Errorf("transaction.Status: got %s, want %s", transaction.Status, StatusSettled)
+		if transaction.Status != TransactionStatusSettled {
+			t.Errorf("transaction.Status: got %s, want %s", transaction.Status, TransactionStatusSettled)
 		}
 	})
 
@@ -75,6 +75,115 @@ func TestFindTransaction(t *testing.T) {
 		t.Parallel()
 
 		if _, err := bt.Transaction().Find("nonExisting"); err == nil || err.Error() != "404 Not Found" {
+			t.Errorf("got: %v, want: 404 Not Found", err)
+		}
+	})
+}
+
+func TestRefundTransaction(t *testing.T) {
+	t.Parallel()
+
+	t.Run("shouldWork", func(t *testing.T) {
+		t.Parallel()
+
+		customer, err := bt.Customer().Create(CustomerInput{
+			FirstName: "first",
+			CreditCard: &CreditCardInput{
+				PaymentMethodNonce: "fake-valid-visa-nonce",
+			},
+		})
+		if err != nil {
+			t.Fatalf("unexpected err: %s", err)
+		}
+
+		transaction, err := bt.Transaction().Create(TransactionInput{
+			Amount: decimal.NewFromFloat(3.7),
+			Options: &TransactionOptions{
+				SubmitForSettlement: true,
+			},
+			PaymentMethodToken: customer.CreditCards[0].Token,
+			Type:               TransactionTypeSale,
+		})
+		if err != nil {
+			t.Fatalf("unexpected err: %s", err)
+		}
+		if transaction.Status != TransactionStatusSubmittedForSettlement {
+			t.Fatalf("transaction.Status: expected %s, got %s", TransactionStatusSubmittedForSettlement, transaction.Status)
+		}
+
+		transaction, err = bt.Transaction().Settle(transaction.ID)
+		if err != nil {
+			t.Fatalf("unexpected err: %s", err)
+		}
+		if transaction.Status != TransactionStatusSettled {
+			t.Errorf("transaction.Status: expected %s, got %s", TransactionStatusSettled, transaction.Status)
+		}
+
+		transaction2, err := bt.Transaction().Refund(transaction.ID)
+		if err != nil {
+			t.Fatalf("unexpected err: %s", err)
+		}
+		if transaction2.Status != TransactionStatusSubmittedForSettlement {
+			t.Errorf("transaction2.Status: expected %s, got %s", TransactionStatusSubmittedForSettlement, transaction.Status)
+		}
+		if transaction2.RefundedTransactionID != transaction.ID {
+			t.Errorf("transaction2.RefundedTransactionID: expected %s, got %s", transaction.ID, transaction2.RefundedTransactionID)
+		}
+	})
+
+	t.Run("nonExisting", func(t *testing.T) {
+		t.Parallel()
+
+		if _, err := bt.Transaction().Refund("nonExisting"); err == nil || err.Error() != "404 Not Found" {
+			t.Errorf("got: %v, want: 404 Not Found", err)
+		}
+	})
+}
+
+func TestSettleTransaction(t *testing.T) {
+	t.Parallel()
+
+	t.Run("shouldWork", func(t *testing.T) {
+		t.Parallel()
+
+		customer, err := bt.Customer().Create(CustomerInput{
+			FirstName: "first",
+			CreditCard: &CreditCardInput{
+				PaymentMethodNonce: "fake-valid-visa-nonce",
+			},
+		})
+		if err != nil {
+			t.Fatalf("unexpected err: %s", err)
+		}
+
+		transaction, err := bt.Transaction().Create(TransactionInput{
+			Amount: decimal.NewFromFloat(3.6),
+			Options: &TransactionOptions{
+				SubmitForSettlement: true,
+			},
+			PaymentMethodToken: customer.CreditCards[0].Token,
+			Type:               TransactionTypeSale,
+		})
+		if err != nil {
+			t.Fatalf("unexpected err: %s", err)
+		}
+		if transaction.Status != TransactionStatusSubmittedForSettlement {
+			t.Fatalf("transaction.Status: expected %s, got %s", TransactionStatusSubmittedForSettlement, transaction.Status)
+		}
+
+		transaction, err = bt.Transaction().Settle(transaction.ID)
+		if err != nil {
+			t.Fatalf("unexpected err: %s", err)
+		}
+		if transaction.Status != TransactionStatusSettled {
+			t.Errorf("transaction.Status: expected %s, got %s", TransactionStatusSettled, transaction.Status)
+		}
+	})
+
+	t.Run("nonExisting", func(t *testing.T) {
+		t.Parallel()
+
+		if _, err := bt.Transaction().Settle("nonExisting"); err == nil || err.Error() != "404 Not Found" {
 			t.Errorf("got: %v, want: 404 Not Found", err)
 		}
 	})
@@ -107,16 +216,16 @@ func TestVoidTransaction(t *testing.T) {
 		if err != nil {
 			t.Fatalf("unexpected err: %s", err)
 		}
-		if transaction.Status != StatusSubmittedForSettlement {
-			t.Fatalf("transaction.Status: expected %s, got %s", StatusSubmittedForSettlement, transaction.Status)
+		if transaction.Status != TransactionStatusSubmittedForSettlement {
+			t.Fatalf("transaction.Status: expected %s, got %s", TransactionStatusSubmittedForSettlement, transaction.Status)
 		}
 
 		transaction, err = bt.Transaction().Void(transaction.ID)
 		if err != nil {
 			t.Fatalf("unexpected err: %s", err)
 		}
-		if transaction.Status != StatusVoided {
-			t.Errorf("transaction.Status: expected %s, got %s", StatusVoided, transaction.Status)
+		if transaction.Status != TransactionStatusVoided {
+			t.Errorf("transaction.Status: expected %s, got %s", TransactionStatusVoided, transaction.Status)
 		}
 	})
 

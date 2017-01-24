@@ -19,19 +19,19 @@ const (
 
 // Status types of a transaction.
 const (
-	StatusAuthorisationExpired   = "authorisation_expired"
-	StatusAuthorized             = "authorized"
-	StatusAuthorizing            = "authorizing"
-	StatusSettlementPending      = "settlement_pending"
-	StatusSettlementConfirmed    = "settlement_confirmed"
-	StatusSettlementDeclined     = "settlement_declined"
-	StatusFailed                 = "failed"
-	StatusGatewayRejected        = "gateway_reject"
-	StatusProcessorDeclined      = "processor_declined"
-	StatusSettled                = "settled"
-	StatusSettling               = "settling"
-	StatusSubmittedForSettlement = "submitted_for_settlement"
-	StatusVoided                 = "voided"
+	TransactionStatusAuthorisationExpired   = "authorisation_expired"
+	TransactionStatusAuthorized             = "authorized"
+	TransactionStatusAuthorizing            = "authorizing"
+	TransactionStatusSettlementPending      = "settlement_pending"
+	TransactionStatusSettlementConfirmed    = "settlement_confirmed"
+	TransactionStatusSettlementDeclined     = "settlement_declined"
+	TransactionStatusFailed                 = "failed"
+	TransactionStatusGatewayRejected        = "gateway_reject"
+	TransactionStatusProcessorDeclined      = "processor_declined"
+	TransactionStatusSettled                = "settled"
+	TransactionStatusSettling               = "settling"
+	TransactionStatusSubmittedForSettlement = "submitted_for_settlement"
+	TransactionStatusVoided                 = "voided"
 )
 
 // Types of a transaction.
@@ -160,6 +160,26 @@ func (tgw TransactionGW) Create(transaction TransactionInput) (*Transaction, err
 func (tgw TransactionGW) Find(id string) (*Transaction, error) {
 	transaction := &Transaction{}
 	if err := tgw.bt.execute(http.MethodGet, "transactions/"+id, transaction, nil); err != nil {
+		return nil, err
+	}
+	return transaction, nil
+}
+
+// Refund a transaction on braintree after settlement.
+func (tgw TransactionGW) Refund(id string) (*Transaction, error) {
+	transaction := &Transaction{}
+	if err := tgw.bt.execute(http.MethodPost, "transactions/"+id+"/refund", transaction, nil); err != nil {
+		return nil, err
+	}
+	return transaction, nil
+}
+
+// Settle a transaction on braintree.
+//
+// This will only work in the sandbox environment.
+func (tgw TransactionGW) Settle(id string) (*Transaction, error) {
+	transaction := &Transaction{}
+	if err := tgw.bt.execute(http.MethodPut, "transactions/"+id+"/settle", transaction, nil); err != nil {
 		return nil, err
 	}
 	return transaction, nil
