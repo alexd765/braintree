@@ -165,6 +165,15 @@ func (tgw TransactionGW) Find(id string) (*Transaction, error) {
 	return transaction, nil
 }
 
+// Refund a transaction on braintree after settlement.
+func (tgw TransactionGW) Refund(id string) (*Transaction, error) {
+	transaction := &Transaction{}
+	if err := tgw.bt.execute(http.MethodPost, "transactions/"+id+"/refund", transaction, nil); err != nil {
+		return nil, err
+	}
+	return transaction, nil
+}
+
 // Settle a transaction on braintree.
 //
 // This will only work in the sandbox environment.
