@@ -19,19 +19,19 @@ const (
 
 // Status types of a transaction.
 const (
-	StatusAuthorisationExpired   = "authorisation_expired"
-	StatusAuthorized             = "authorized"
-	StatusAuthorizing            = "authorizing"
-	StatusSettlementPending      = "settlement_pending"
-	StatusSettlementConfirmed    = "settlement_confirmed"
-	StatusSettlementDeclined     = "settlement_declined"
-	StatusFailed                 = "failed"
-	StatusGatewayRejected        = "gateway_reject"
-	StatusProcessorDeclined      = "processor_declined"
-	StatusSettled                = "settled"
-	StatusSettling               = "settling"
-	StatusSubmittedForSettlement = "submitted_for_settlement"
-	StatusVoided                 = "voided"
+	TransactionStatusAuthorisationExpired   = "authorisation_expired"
+	TransactionStatusAuthorized             = "authorized"
+	TransactionStatusAuthorizing            = "authorizing"
+	TransactionStatusSettlementPending      = "settlement_pending"
+	TransactionStatusSettlementConfirmed    = "settlement_confirmed"
+	TransactionStatusSettlementDeclined     = "settlement_declined"
+	TransactionStatusFailed                 = "failed"
+	TransactionStatusGatewayRejected        = "gateway_reject"
+	TransactionStatusProcessorDeclined      = "processor_declined"
+	TransactionStatusSettled                = "settled"
+	TransactionStatusSettling               = "settling"
+	TransactionStatusSubmittedForSettlement = "submitted_for_settlement"
+	TransactionStatusVoided                 = "voided"
 )
 
 // Types of a transaction.
