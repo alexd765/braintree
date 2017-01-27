@@ -1,7 +1,10 @@
 package braintree
 
-import "testing"
-import "encoding/xml"
+import (
+	"encoding/xml"
+	"fmt"
+	"testing"
+)
 
 func TestCreatePaymentMethod(t *testing.T) {
 	t.Parallel()
@@ -84,6 +87,7 @@ func TestCreatePaymentMethod(t *testing.T) {
 				if pmi.Token == "" {
 					t.Errorf("expected nonzero token")
 				}
+				fmt.Printf("paypal token: %s\n", pmi.Token)
 			}
 		})
 	}
@@ -137,15 +141,34 @@ func TestDeletePaymentMethod(t *testing.T) {
 func TestFindPaymentMethod(t *testing.T) {
 	t.Parallel()
 
-	t.Run("existing", func(t *testing.T) {
+	t.Run("visa", func(t *testing.T) {
 		t.Parallel()
 
-		card, err := bt.PaymentMethod().Find("j9jjzj")
+		pm, err := bt.PaymentMethod().Find("j9jjzj")
 		if err != nil {
 			t.Fatalf("unexpected err: %s", err)
 		}
+		card, ok := pm.(*CreditCard)
+		if !ok {
+			t.Fatalf("payment method type: got %T, want *CreditCard", pm)
+		}
 		if card.CardType != CardTypeVisa {
 			t.Errorf("card type: got %s, want: %s", card.CardType, CardTypeVisa)
+		}
+	})
+
+	t.Run("paypal", func(t *testing.T) {
+		t.Parallel()
+		pm, err := bt.PaymentMethod().Find("7wxmmp")
+		if err != nil {
+			t.Fatalf("unexpected err: %s", err)
+		}
+		pp, ok := pm.(*Paypal)
+		if !ok {
+			t.Fatalf("payment method type: got %T, want *Paypal", pm)
+		}
+		if pp.Token == "" {
+			t.Errorf("got empty token, want non-empty")
 		}
 	})
 

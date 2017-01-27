@@ -56,12 +56,12 @@ func (pgw PaymentMethodGW) Delete(token string) error {
 }
 
 // Find a payment method on braintree.
-func (pgw PaymentMethodGW) Find(token string) (*CreditCard, error) {
-	card := &CreditCard{}
-	if err := pgw.bt.execute(http.MethodGet, "payment_methods/any/"+token, card, nil); err != nil {
+func (pgw PaymentMethodGW) Find(token string) (PaymentMethod, error) {
+	ppm := &protoPaymentMethod{}
+	if err := pgw.bt.execute(http.MethodGet, "payment_methods/any/"+token, ppm, nil); err != nil {
 		return nil, err
 	}
-	return card, nil
+	return ppm.pm, nil
 }
 
 // Update a payment method on braintree.
