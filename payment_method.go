@@ -2,8 +2,14 @@ package braintree
 
 import (
 	"encoding/xml"
+	"fmt"
 	"net/http"
 )
+
+// A PaymentMethod is currently a CreditCard or Paypal.
+type PaymentMethod interface {
+	private()
+}
 
 // PaymentMethodInput is used to create a payment method on braintree.
 //
@@ -35,15 +41,13 @@ type PaymentMethodGW struct {
 }
 
 // Create a payment method on braintree.
-//
-// Todo: return other payment methods like paypal as well.
-func (pgw PaymentMethodGW) Create(input PaymentMethodInput) (*CreditCard, error) {
+func (pgw PaymentMethodGW) Create(input PaymentMethodInput) (PaymentMethod, error) {
 	input.XMLName = xml.Name{Local: "payment-method"}
-	card := &CreditCard{}
-	if err := pgw.bt.execute(http.MethodPost, "payment_methods", card, input); err != nil {
+	ppm := &protoPaymentMethod{}
+	if err := pgw.bt.execute(http.MethodPost, "payment_methods", ppm, input); err != nil {
 		return nil, err
 	}
-	return card, nil
+	return ppm.pm, nil
 }
 
 // Delete a payment method on braintree.
@@ -70,4 +74,20 @@ func (pgw PaymentMethodGW) Update(input PaymentMethodInput) (*CreditCard, error)
 		return nil, err
 	}
 	return card, nil
+}
+
+type protoPaymentMethod struct {
+	pm PaymentMethod
+}
+
+func (ppm *protoPaymentMethod) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
+	switch start.Name.Local {
+	case "credit-card":
+		(*ppm).pm = &CreditCard{}
+		return d.DecodeElement(ppm.pm, &start)
+	case "paypal-account":
+		(*ppm).pm = &Paypal{}
+		return d.DecodeElement(ppm.pm, &start)
+	}
+	return fmt.Errorf("unmarshal xml: unexpected start element: %s", start.Name.Local)
 }

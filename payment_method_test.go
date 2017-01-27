@@ -1,40 +1,58 @@
 package braintree
 
 import "testing"
+import "encoding/xml"
 
 func TestCreatePaymentMethod(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		Name  string
-		Input PaymentMethodInput
+		Name         string
+		Input        PaymentMethodInput
+		WantCardType string
 	}{
 		{
-			Name: "minimal",
+			Name: "CardMinimal",
+			Input: PaymentMethodInput{
+				PaymentMethodNonce: "fake-valid-visa-nonce",
+			},
+			WantCardType: CardTypeVisa,
 		},
 		{
-			Name: "withOptions",
+			Name: "PaypalMinimal",
 			Input: PaymentMethodInput{
+				PaymentMethodNonce: "fake-paypal-future-nonce",
+			},
+		},
+		{
+			Name: "CardWithOptions",
+			Input: PaymentMethodInput{
+				PaymentMethodNonce: "fake-valid-mastercard-nonce",
 				Options: &PaymentMethodOptions{
 					MakeDefault: true,
 				},
 			},
+			WantCardType: CardTypeMasterCard,
 		},
 		{
-			Name: "withRiskData",
+			Name: "CardWithRiskData",
 			Input: PaymentMethodInput{
+				PaymentMethodNonce: "fake-valid-visa-nonce",
 				RiskData: &RiskData{
 					CustomerIP: "123.123.123.123",
 				},
 			},
+			WantCardType: CardTypeVisa,
 		},
 		{
-			Name: "withAddress",
+			Name: "CardWithAddress",
 			Input: PaymentMethodInput{
+				PaymentMethodNonce: "fake-valid-mastercard-nonce",
 				BillingAddress: &AddressInput{
 					StreetAddress: "street",
 				},
 			},
+			WantCardType: CardTypeMasterCard,
 		},
 	}
 
@@ -47,13 +65,25 @@ func TestCreatePaymentMethod(t *testing.T) {
 				t.Fatalf("unexpected err: %s", err)
 			}
 			test.Input.CustomerID = customer.ID
-			test.Input.PaymentMethodNonce = "fake-valid-visa-nonce"
-			card, err := bt.PaymentMethod().Create(test.Input)
+			pm, err := bt.PaymentMethod().Create(test.Input)
 			if err != nil {
 				t.Fatalf("unexpected err: %s", err)
 			}
-			if card.CardType != CardTypeVisa {
-				t.Errorf("card type: got %s, want: %s", card.CardType, CardTypeVisa)
+			switch pmi := pm.(type) {
+			case *CreditCard:
+				if test.WantCardType == "" {
+					t.Fatal("payment method type: got *CreditCard, want *Paypal")
+				}
+				if pmi.CardType != test.WantCardType {
+					t.Errorf("card type: got %s, want: %s", pmi.CardType, test.WantCardType)
+				}
+			case *Paypal:
+				if test.WantCardType != "" {
+					t.Fatal("payment method type: got *Paypal, want *CreditCard")
+				}
+				if pmi.Token == "" {
+					t.Errorf("expected nonzero token")
+				}
 			}
 		})
 	}
@@ -82,9 +112,13 @@ func TestDeletePaymentMethod(t *testing.T) {
 			t.Fatalf("unexpected err: %s", err)
 		}
 
-		card, err := bt.PaymentMethod().Create(PaymentMethodInput{CustomerID: customer.ID, PaymentMethodNonce: "fake-valid-visa-nonce"})
+		pm, err := bt.PaymentMethod().Create(PaymentMethodInput{CustomerID: customer.ID, PaymentMethodNonce: "fake-valid-visa-nonce"})
 		if err != nil {
 			t.Fatalf("unexpected err: %s", err)
+		}
+		card, ok := pm.(*CreditCard)
+		if !ok {
+			t.Fatalf("payment method type: got %T, want CreditCard", pm)
 		}
 		if err := bt.PaymentMethod().Delete(card.Token); err != nil {
 			t.Errorf("unexpected err: %s", err)
@@ -135,9 +169,13 @@ func TestUpdatePaymentMethod(t *testing.T) {
 			t.Fatalf("unexpected err: %s", err)
 		}
 
-		card, err := bt.PaymentMethod().Create(PaymentMethodInput{CustomerID: customer.ID, PaymentMethodNonce: "fake-valid-visa-nonce"})
+		pm, err := bt.PaymentMethod().Create(PaymentMethodInput{CustomerID: customer.ID, PaymentMethodNonce: "fake-valid-visa-nonce"})
 		if err != nil {
 			t.Fatalf("unexpected err: %s", err)
+		}
+		card, ok := pm.(*CreditCard)
+		if !ok {
+			t.Fatalf("payment method type: got %T, want CreditCard", pm)
 		}
 
 		card, err = bt.PaymentMethod().Update(PaymentMethodInput{Token: card.Token, CardholderName: "name"})
@@ -156,4 +194,15 @@ func TestUpdatePaymentMethod(t *testing.T) {
 			t.Errorf("got: %v, want: 404: Not Found", err)
 		}
 	})
+}
+
+func TestProtoPaymentMethodUnmarshalXML(t *testing.T) {
+	t.Parallel()
+
+	data := []byte("<abc></abc>")
+	ppm := protoPaymentMethod{}
+	wantErr := "unmarshal xml: unexpected start element: abc"
+	if err := xml.Unmarshal(data, &ppm); err == nil || err.Error() != wantErr {
+		t.Errorf("unmarshal protoPaymentMethod err: got %v, want %v", err, wantErr)
+	}
 }
