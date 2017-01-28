@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-// A PaymentMethod is currently a CreditCard or Paypal.
+// A PaymentMethod is currently a *CreditCard or *Paypal.
 type PaymentMethod interface {
 	private()
 }
@@ -67,13 +67,13 @@ func (pgw PaymentMethodGW) Find(token string) (PaymentMethod, error) {
 // Update a payment method on braintree.
 //
 // Token is required.
-func (pgw PaymentMethodGW) Update(input PaymentMethodInput) (*CreditCard, error) {
+func (pgw PaymentMethodGW) Update(input PaymentMethodInput) (PaymentMethod, error) {
 	input.XMLName = xml.Name{Local: "payment-method"}
-	card := &CreditCard{}
-	if err := pgw.bt.execute(http.MethodPut, "payment_methods/any/"+input.Token, card, input); err != nil {
+	ppm := &protoPaymentMethod{}
+	if err := pgw.bt.execute(http.MethodPut, "payment_methods/any/"+input.Token, ppm, input); err != nil {
 		return nil, err
 	}
-	return card, nil
+	return ppm.pm, nil
 }
 
 type protoPaymentMethod struct {

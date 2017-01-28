@@ -201,9 +201,13 @@ func TestUpdatePaymentMethod(t *testing.T) {
 			t.Fatalf("payment method type: got %T, want CreditCard", pm)
 		}
 
-		card, err = bt.PaymentMethod().Update(PaymentMethodInput{Token: card.Token, CardholderName: "name"})
+		pm, err = bt.PaymentMethod().Update(PaymentMethodInput{Token: card.Token, CardholderName: "name"})
 		if err != nil {
 			t.Fatalf("unexpected err: %s", err)
+		}
+		card, ok = pm.(*CreditCard)
+		if !ok {
+			t.Fatalf("payment method type: got %T, want CreditCard", pm)
 		}
 		if card.CardholderName != "name" {
 			t.Errorf("cardholder name: got: %s, want: name", card.CardholderName)
