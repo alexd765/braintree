@@ -15,7 +15,7 @@ const (
 	CardTypeJCB             = "JCB"
 	CardTypeLaser           = "Laser"
 	CardTypeMaestro         = "Maestro"
-	CardTypeMastercard      = "Mastercard"
+	CardTypeMasterCard      = "MasterCard"
 	CardTypeSolo            = "Solo"
 	CardTypeSwitch          = "Switch"
 	CardTypeVisa            = "Visa"
@@ -66,3 +66,5 @@ type CreditCardInput struct {
 	RiskData           *RiskData             `xml:"risk-data,omitempty"`
 	Token              string                `xml:"token,omitempty"`
 }
+
+func (cc CreditCard) private() {}

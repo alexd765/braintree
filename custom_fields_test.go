@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestMarshalXML(t *testing.T) {
+func TestCustomFieldsMarshalXML(t *testing.T) {
 	t.Parallel()
 
 	cf := CustomFields{"key1": "value1", "key2": "value2"}
@@ -23,7 +23,7 @@ func TestMarshalXML(t *testing.T) {
 	}
 }
 
-func TestUnmarshalXML(t *testing.T) {
+func TestCustomFieldsUnmarshalXML(t *testing.T) {
 	t.Parallel()
 
 	t.Run("valid", func(t *testing.T) {
