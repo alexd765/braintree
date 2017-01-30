@@ -11,20 +11,19 @@ type Customer struct {
 	Addresses []Address `xml:"addresses>address"`
 	// AndroidPayCards
 	// ApplePayCards
-	Company      string       `xml:"company"`
-	CreatedAt    time.Time    `xml:"created-at"`
-	CreditCards  []CreditCard `xml:"credit-cards>credit-card"`
-	CustomFields CustomFields `xml:"custom-fields"`
-	Email        string       `xml:"email"`
-	Fax          string       `xml:"fax"`
-	FirstName    string       `xml:"first-name"`
-	ID           string       `xml:"id"`
-	LastName     string       `xml:"last-name"`
-	// PaymentMethods
-	// PaypalAccounts
-	Phone     string    `xml:"phone"`
-	UpdatedAt time.Time `xml:"updated-at"`
-	Website   string    `xml:"website"`
+	Company        string       `xml:"company"`
+	CreatedAt      time.Time    `xml:"created-at"`
+	CreditCards    []CreditCard `xml:"credit-cards>credit-card"`
+	CustomFields   CustomFields `xml:"custom-fields"`
+	Email          string       `xml:"email"`
+	Fax            string       `xml:"fax"`
+	FirstName      string       `xml:"first-name"`
+	ID             string       `xml:"id"`
+	LastName       string       `xml:"last-name"`
+	PaypalAccounts []Paypal     `xml:"paypal-accounts>paypal-account"`
+	Phone          string       `xml:"phone"`
+	UpdatedAt      time.Time    `xml:"updated-at"`
+	Website        string       `xml:"website"`
 }
 
 // CustomerInput is used to create or update a customer.
@@ -83,4 +82,29 @@ func (cgw CustomerGW) Update(customer CustomerInput) (*Customer, error) {
 		return nil, err
 	}
 	return updatedCustomer, nil
+}
+
+// PaymentMethods of a customer. Currently Credit Cards and Paypal accounts.
+func (c Customer) PaymentMethods() []PaymentMethod {
+	noCC := len(c.CreditCards)
+	pms := make([]PaymentMethod, noCC+len(c.PaypalAccounts))
+	for i, cc := range c.CreditCards {
+		pms[i] = cc
+	}
+	for i, pp := range c.PaypalAccounts {
+		pms[noCC+i] = pp
+	}
+	return pms
+}
+
+// Subscriptions of a customer.
+func (c Customer) Subscriptions() []Subscription {
+	var subs []Subscription
+	for _, cc := range c.CreditCards {
+		subs = append(subs, cc.Subscriptions...)
+	}
+	for _, pp := range c.PaypalAccounts {
+		subs = append(subs, pp.Subscriptions...)
+	}
+	return subs
 }

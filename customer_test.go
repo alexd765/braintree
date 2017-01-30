@@ -22,6 +22,15 @@ func TestCreateCustomer(t *testing.T) {
 		if got.ID == "" {
 			t.Errorf("ID: got empty, want nonempty")
 		}
+		if got.Addresses != nil {
+			t.Errorf("Addresses: want nil, got %+v", got.Addresses)
+		}
+		if got.CreditCards != nil {
+			t.Errorf("CreditCards: want nil, got %+v", got.CreditCards)
+		}
+		if got.PaypalAccounts != nil {
+			t.Errorf("PaypalAccounts: want nil, got %+v", got.PaypalAccounts)
+		}
 	})
 
 	t.Run("existing", func(t *testing.T) {
@@ -88,6 +97,18 @@ func TestFindCustomer(t *testing.T) {
 		}
 		if cardType := customer.CreditCards[0].CardType; cardType != CardTypeVisa {
 			t.Errorf("card type: got %s, want: %s", cardType, CardTypeVisa)
+		}
+		if size := len(customer.PaypalAccounts); size != 1 {
+			t.Fatalf("paypal accounts: got %d, want 1", size)
+		}
+		if customer.PaypalAccounts[0].Token == "" {
+			t.Fatal("paypal account: expected nonempty token")
+		}
+		if size := len(customer.PaymentMethods()); size != 2 {
+			t.Fatalf("payment methods: got %d, want 2", size)
+		}
+		if size := len(customer.Subscriptions()); size != 1 {
+			t.Fatalf("subscriptions: got: %d, want: 1", size)
 		}
 		if size := len(customer.CreditCards[0].Subscriptions); size != 1 {
 			t.Fatalf("subscriptions: got: %d, want: 1", size)

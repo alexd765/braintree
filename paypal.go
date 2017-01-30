@@ -10,7 +10,7 @@ type Paypal struct {
 	Default            bool           `xml:"default"`
 	Email              string         `xml:"email"`
 	ImageURL           string         `xml:"image-url"`
-	Subscriptions      []Subscription `xml:"subscriptions"`
+	Subscriptions      []Subscription `xml:"subscriptions>subscription"`
 	Token              string         `xml:"token"`
 	UpdatedAt          time.Time      `xml:"updated-at"`
 }
