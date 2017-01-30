@@ -96,3 +96,15 @@ func (c Customer) PaymentMethods() []PaymentMethod {
 	}
 	return pms
 }
+
+// Subscriptions of a customer.
+func (c Customer) Subscriptions() []Subscription {
+	var subs []Subscription
+	for _, cc := range c.CreditCards {
+		subs = append(subs, cc.Subscriptions...)
+	}
+	for _, pp := range c.PaypalAccounts {
+		subs = append(subs, pp.Subscriptions...)
+	}
+	return subs
+}
