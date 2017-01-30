@@ -2,7 +2,6 @@ package braintree
 
 import (
 	"encoding/xml"
-	"fmt"
 	"testing"
 )
 
@@ -87,7 +86,6 @@ func TestCreatePaymentMethod(t *testing.T) {
 				if pmi.Token == "" {
 					t.Errorf("expected nonzero token")
 				}
-				fmt.Printf("paypal token: %s\n", pmi.Token)
 			}
 		})
 	}

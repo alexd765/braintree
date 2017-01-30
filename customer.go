@@ -21,10 +21,10 @@ type Customer struct {
 	ID           string       `xml:"id"`
 	LastName     string       `xml:"last-name"`
 	// PaymentMethods
-	// PaypalAccounts
-	Phone     string    `xml:"phone"`
-	UpdatedAt time.Time `xml:"updated-at"`
-	Website   string    `xml:"website"`
+	PaypalAccounts []Paypal  `xml:"paypal-accounts>paypal-account"`
+	Phone          string    `xml:"phone"`
+	UpdatedAt      time.Time `xml:"updated-at"`
+	Website        string    `xml:"website"`
 }
 
 // CustomerInput is used to create or update a customer.

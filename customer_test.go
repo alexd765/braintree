@@ -89,6 +89,12 @@ func TestFindCustomer(t *testing.T) {
 		if cardType := customer.CreditCards[0].CardType; cardType != CardTypeVisa {
 			t.Errorf("card type: got %s, want: %s", cardType, CardTypeVisa)
 		}
+		if size := len(customer.PaypalAccounts); size != 1 {
+			t.Fatalf("paypal accounts: got %d, want 1", size)
+		}
+		if customer.PaypalAccounts[0].Token == "" {
+			t.Fatal("paypal account: expected nonempty token")
+		}
 		if size := len(customer.CreditCards[0].Subscriptions); size != 1 {
 			t.Fatalf("subscriptions: got: %d, want: 1", size)
 		}
