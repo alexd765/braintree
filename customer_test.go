@@ -95,6 +95,9 @@ func TestFindCustomer(t *testing.T) {
 		if customer.PaypalAccounts[0].Token == "" {
 			t.Fatal("paypal account: expected nonempty token")
 		}
+		if size := len(customer.PaymentMethods()); size != 2 {
+			t.Fatalf("payment methods: got %d, want 2", size)
+		}
 		if size := len(customer.CreditCards[0].Subscriptions); size != 1 {
 			t.Fatalf("subscriptions: got: %d, want: 1", size)
 		}
