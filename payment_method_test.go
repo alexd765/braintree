@@ -79,12 +79,18 @@ func TestCreatePaymentMethod(t *testing.T) {
 				if pmi.CardType != test.WantCardType {
 					t.Errorf("card type: got %s, want: %s", pmi.CardType, test.WantCardType)
 				}
+				if pmi.Subscriptions != nil {
+					t.Errorf("Subscriptions: want nil, got %+v", pmi.Subscriptions)
+				}
 			case *Paypal:
 				if test.WantCardType != "" {
 					t.Fatal("payment method type: got *Paypal, want *CreditCard")
 				}
 				if pmi.Token == "" {
 					t.Errorf("expected nonzero token")
+				}
+				if pmi.Subscriptions != nil {
+					t.Errorf("Subscriptions: want nil, got %+v", pmi.Subscriptions)
 				}
 			}
 		})
