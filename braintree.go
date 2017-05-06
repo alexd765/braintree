@@ -16,6 +16,7 @@ type Braintree struct {
 	privateKey  string
 
 	addressGW       AddressGW
+	clientTokenGW   ClientTokenGW
 	customerGW      CustomerGW
 	paymentMethodGW PaymentMethodGW
 	planGW          PlanGW
@@ -36,6 +37,7 @@ func New() (*Braintree, error) {
 		privateKey:  os.Getenv("BRAINTREE_PRIV_KEY"),
 	}
 	bt.addressGW = AddressGW{bt: bt}
+	bt.clientTokenGW = ClientTokenGW{bt: bt}
 	bt.customerGW = CustomerGW{bt: bt}
 	bt.paymentMethodGW = PaymentMethodGW{bt: bt}
 	bt.planGW = PlanGW{bt: bt}
@@ -58,6 +60,11 @@ func New() (*Braintree, error) {
 // Address provides the address gateway for this braintree client.
 func (bt *Braintree) Address() AddressGW {
 	return bt.addressGW
+}
+
+// ClientToken provides the client token gateway for this braintree client.
+func (bt *Braintree) ClientToken() ClientTokenGW {
+	return bt.clientTokenGW
 }
 
 // Customer provides the customer gateway for this braintree client.
