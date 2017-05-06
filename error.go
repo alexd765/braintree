@@ -27,6 +27,7 @@ func parseError(resp *http.Response) error {
 	apiErr := struct {
 		XMLName      xml.Name   `xml:"api-error-response"`
 		Address      []APIError `xml:"errors>address>errors>error"`
+		ClientToken  []APIError `xml:"errors>client-token>errors>error"`
 		CreditCard   []APIError `xml:"errors>credit-card>errors>error"`
 		Customer     []APIError `xml:"errors>customer>errors>error"`
 		Subscription []APIError `xml:"errors>subscription>errors>error"`
@@ -37,7 +38,8 @@ func parseError(resp *http.Response) error {
 		return err
 	}
 
-	errs := append(apiErr.Address, apiErr.CreditCard...)
+	errs := append(apiErr.Address, apiErr.ClientToken...)
+	errs = append(errs, apiErr.CreditCard...)
 	errs = append(errs, apiErr.Customer...)
 	errs = append(errs, apiErr.Subscription...)
 	errs = append(errs, apiErr.Transaction...)

@@ -44,8 +44,13 @@ func TestGenerateClientToken(t *testing.T) {
 
 	t.Run("invalidVersion", func(t *testing.T) {
 		t.Parallel()
-		if _, err := bt.ClientToken().Generate(ClientTokenInput{Version: newInt(-3)}); err == nil || err.Error() != "422 Unprocessable Entity" {
-			t.Errorf("got: %v, want: 422 Unprocessable Entity", err)
+		_, err := bt.ClientToken().Generate(ClientTokenInput{Version: newInt(-3)})
+		apiErr, ok := err.(*APIError)
+		if !ok {
+			t.Errorf("expected error of type APIError")
+		}
+		if apiErr == nil || apiErr.Code != 92806 {
+			t.Errorf("api error code: got %v, want 92806", apiErr)
 		}
 	})
 }
