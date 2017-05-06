@@ -8,8 +8,8 @@ import (
 // ClientTokenInput is used to generate a client token.
 type ClientTokenInput struct {
 	XMLName           xml.Name
-	CustomerID        *string             `xml:"customer-id,omitempty"`
-	MerchantAccountID *string             `xml:"merchant-account-id,omitempty"`
+	CustomerID        string              `xml:"customer-id,omitempty"`
+	MerchantAccountID string              `xml:"merchant-account-id,omitempty"`
 	Options           *ClientTokenOptions `xml:"options,omitempty"`
 	Version           int                 `xml:"version"`
 }

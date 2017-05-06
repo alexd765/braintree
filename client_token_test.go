@@ -25,7 +25,7 @@ func TestGenerateClientToken(t *testing.T) {
 		{
 			name: "withOptions",
 			input: ClientTokenInput{
-				CustomerID: newString("cus1"),
+				CustomerID: "cus1",
 				Version:    3,
 				Options: &ClientTokenOptions{
 					VerifyCard: true,
@@ -59,8 +59,4 @@ func TestGenerateClientToken(t *testing.T) {
 			t.Errorf("api error code: got %v, want 92806", apiErr)
 		}
 	})
-}
-
-func newString(s string) *string {
-	return &s
 }
