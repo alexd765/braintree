@@ -11,19 +11,15 @@ func TestGenerateClientToken(t *testing.T) {
 		wantError error
 	}{
 		{
-			name:  "minimal",
-			input: ClientTokenInput{},
-		},
-		{
 			name: "version2",
 			input: ClientTokenInput{
-				Version: newInt(2),
+				Version: 2,
 			},
 		},
 		{
 			name: "version3",
 			input: ClientTokenInput{
-				Version: newInt(3),
+				Version: 3,
 			},
 		},
 	}
@@ -44,7 +40,7 @@ func TestGenerateClientToken(t *testing.T) {
 
 	t.Run("invalidVersion", func(t *testing.T) {
 		t.Parallel()
-		_, err := bt.ClientToken().Generate(ClientTokenInput{Version: newInt(-3)})
+		_, err := bt.ClientToken().Generate(ClientTokenInput{})
 		apiErr, ok := err.(*APIError)
 		if !ok {
 			t.Errorf("expected error of type APIError")
@@ -53,8 +49,4 @@ func TestGenerateClientToken(t *testing.T) {
 			t.Errorf("api error code: got %v, want 92806", apiErr)
 		}
 	})
-}
-
-func newInt(n int) *int {
-	return &n
 }

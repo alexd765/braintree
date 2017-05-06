@@ -11,7 +11,7 @@ type ClientTokenInput struct {
 	CustomerID        *string `xml:"customer-id,omitempty"`
 	MerchantAccountID *string `xml:"merchant-account-id,omitempty"`
 	// Options
-	Version *int `xml:"version,omitempty"`
+	Version int `xml:"version"`
 }
 
 // ClientTokenGW is a ClientToken Gateway.
@@ -20,6 +20,8 @@ type ClientTokenGW struct {
 }
 
 // Generate a client token.
+//
+// Version is required.
 func (ctgw ClientTokenGW) Generate(ct ClientTokenInput) (string, error) {
 	ct.XMLName = xml.Name{Local: "client-token"}
 	resp := &struct {
