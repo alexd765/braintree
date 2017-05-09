@@ -32,9 +32,9 @@ func New() (*Braintree, error) {
 
 	bt := &Braintree{
 		environment: "sandbox",
-		merchantID:  os.Getenv("BRAINTREE_MERCH_ID"),
-		publicKey:   os.Getenv("BRAINTREE_PUB_KEY"),
-		privateKey:  os.Getenv("BRAINTREE_PRIV_KEY"),
+		merchantID:  os.Getenv("BRAINTREE_MERCHANT_ID"),
+		publicKey:   os.Getenv("BRAINTREE_PUBLIC_KEY"),
+		privateKey:  os.Getenv("BRAINTREE_PRIVATE_KEY"),
 	}
 	bt.addressGW = AddressGW{bt: bt}
 	bt.clientTokenGW = ClientTokenGW{bt: bt}
@@ -45,13 +45,13 @@ func New() (*Braintree, error) {
 	bt.transactionGW = TransactionGW{bt: bt}
 
 	if bt.merchantID == "" {
-		return nil, errors.New("env BRAINTREE_MERCH_ID not set")
+		return nil, errors.New("env BRAINTREE_MERCHANT_ID not set")
 	}
 	if bt.publicKey == "" {
-		return nil, errors.New("env BRAINTREE_PUB_KEY not set")
+		return nil, errors.New("env BRAINTREE_PUBLIC_KEY not set")
 	}
 	if bt.privateKey == "" {
-		return nil, errors.New("env BRAINTREE_PRIV_KEY not set")
+		return nil, errors.New("env BRAINTREE_PRIVATE_KEY not set")
 	}
 
 	return bt, nil
