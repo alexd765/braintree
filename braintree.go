@@ -26,8 +26,8 @@ type Braintree struct {
 
 // New returns a braintree client with credentials from env.
 //
-// BRAINTREE_MERCH_ID, BRAINTREE_PUB_KEY and BRAINTREE_PRIV_KEY
-// have to be set.
+// BRAINTREE_MERCHANT_ID, BRAINTREE_PUBLIC_KEY and
+// BRAINTREE_PRIVATE_KEY have to be set.
 func New() (*Braintree, error) {
 
 	bt := &Braintree{

@@ -22,7 +22,7 @@ func TestMain(m *testing.M) {
 // doesn't run in parallel to other tests
 func TestNew(t *testing.T) {
 
-	for _, key := range [3]string{"BRAINTREE_MERCH_ID", "BRAINTREE_PUB_KEY", "BRAINTREE_PRIV_KEY"} {
+	for _, key := range [3]string{"BRAINTREE_MERCHANT_ID", "BRAINTREE_PUBLIC_KEY", "BRAINTREE_PRIVATE_KEY"} {
 		value := os.Getenv(key)
 		os.Setenv(key, "")
 		want := "env " + key + " not set"
