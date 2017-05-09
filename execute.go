@@ -8,7 +8,7 @@ import (
 
 func (bt *Braintree) execute(method, path string, v interface{}, payload interface{}) error {
 
-	url := "https://" + bt.environment + ".braintreegateway.com/merchants/" + bt.merchantID + "/" + path
+	url := bt.baseURL() + path
 	buf := new(bytes.Buffer)
 	if err := xml.NewEncoder(buf).Encode(payload); err != nil {
 		return err
@@ -43,4 +43,11 @@ func (bt *Braintree) execute(method, path string, v interface{}, payload interfa
 	default:
 		return parseError(resp)
 	}
+}
+
+func (bt *Braintree) baseURL() string {
+	if bt.environment == EnvironmentProduction {
+		return "https://www.braintreegateway.com/merchants/" + bt.merchantID + "/"
+	}
+	return "https://sandbox.braintreegateway.com/merchants/" + bt.merchantID + "/"
 }

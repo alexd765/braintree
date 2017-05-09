@@ -14,7 +14,7 @@ func TestMain(m *testing.M) {
 	var err error
 	bt, err = New()
 	if err != nil {
-		log.Fatalf("error %s", err)
+		log.Fatalf("error: %s", err)
 	}
 	os.Exit(m.Run())
 }
@@ -22,10 +22,13 @@ func TestMain(m *testing.M) {
 // doesn't run in parallel to other tests
 func TestNew(t *testing.T) {
 
-	for _, key := range [3]string{"BRAINTREE_MERCH_ID", "BRAINTREE_PUB_KEY", "BRAINTREE_PRIV_KEY"} {
+	for _, key := range [4]string{"BRAINTREE_ENVIRONMENT", "BRAINTREE_MERCHANT_ID", "BRAINTREE_PUBLIC_KEY", "BRAINTREE_PRIVATE_KEY"} {
 		value := os.Getenv(key)
 		os.Setenv(key, "")
 		want := "env " + key + " not set"
+		if key == "BRAINTREE_ENVIRONMENT" {
+			want = "env BRAINTREE_ENVIRONMENT has to be set to production or sandbox"
+		}
 		if _, err := New(); err == nil || err.Error() != want {
 			t.Errorf("got: %v, want: %s", err, want)
 		}
