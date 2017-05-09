@@ -6,6 +6,12 @@ import (
 	"os"
 )
 
+// Braintree Environments
+const (
+	EnvironmentProduction = "production"
+	EnvironmentSanbox     = "sandbox"
+)
+
 // Braintree client
 type Braintree struct {
 	Logger *log.Logger
@@ -26,12 +32,13 @@ type Braintree struct {
 
 // New returns a braintree client with credentials from env.
 //
+// BRAINTREE_ENVIRONMENT has to be set to production or sandbox.
 // BRAINTREE_MERCHANT_ID, BRAINTREE_PUBLIC_KEY and
 // BRAINTREE_PRIVATE_KEY have to be set.
 func New() (*Braintree, error) {
 
 	bt := &Braintree{
-		environment: "sandbox",
+		environment: os.Getenv("BRAINTREE_ENVIRONMENT"),
 		merchantID:  os.Getenv("BRAINTREE_MERCHANT_ID"),
 		publicKey:   os.Getenv("BRAINTREE_PUBLIC_KEY"),
 		privateKey:  os.Getenv("BRAINTREE_PRIVATE_KEY"),
@@ -44,6 +51,9 @@ func New() (*Braintree, error) {
 	bt.subscriptionGW = SubscriptionGW{bt: bt}
 	bt.transactionGW = TransactionGW{bt: bt}
 
+	if bt.environment != EnvironmentProduction && bt.environment != EnvironmentSanbox {
+		return nil, errors.New("env BRAINTREE_ENVIRONMENT has to be set to production or sandbox")
+	}
 	if bt.merchantID == "" {
 		return nil, errors.New("env BRAINTREE_MERCHANT_ID not set")
 	}
