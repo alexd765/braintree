@@ -2,6 +2,7 @@ package braintree
 
 import (
 	"testing"
+	"time"
 
 	"github.com/alexd765/braintree/btdate"
 	"github.com/shopspring/decimal"
@@ -52,35 +53,77 @@ func TestCancelSubscription(t *testing.T) {
 func TestCreateSubscription(t *testing.T) {
 	t.Parallel()
 
-	t.Run("shouldWork", func(t *testing.T) {
-		t.Parallel()
+	customer, err := bt.Customer().Create(CustomerInput{
+		FirstName: "first",
+		CreditCard: &CreditCardInput{
+			PaymentMethodNonce: "fake-valid-visa-nonce",
+		},
+	})
+	if err != nil {
+		t.Fatalf("unexpected err: %s", err)
+	}
 
-		customer, err := bt.Customer().Create(CustomerInput{
-			FirstName: "first",
-			CreditCard: &CreditCardInput{
-				PaymentMethodNonce: "fake-valid-visa-nonce",
-			},
-		})
-		if err != nil {
-			t.Fatalf("unexpected err: %s", err)
-		}
-
-		subscription, err := bt.Subscription().Create(
-			SubscriptionInput{
+	tests := []struct {
+		name                string
+		input               SubscriptionInput
+		wantStartDate       btdate.Date
+		wantNextBillingDate btdate.Date
+	}{
+		{
+			name: "normal",
+			input: SubscriptionInput{
 				PlanID:             "plan1",
 				PaymentMethodToken: customer.CreditCards[0].Token,
 			},
-		)
-		if err != nil {
-			t.Fatalf("unexpected err: %s", err)
-		}
-		if subscription.PlanID != "plan1" {
-			t.Errorf("subscription.PlanID: got: %s, want: plan1", subscription.PlanID)
-		}
-		if subscription.BillingPeriodStartDate != btdate.Today() {
-			t.Errorf("subscription.BillingPeriodStartDate: got %s, want %s", subscription.BillingPeriodStartDate, btdate.Today())
-		}
-	})
+			wantStartDate:       btdate.Today(),
+			wantNextBillingDate: btdate.FromTime(time.Now().UTC().AddDate(0, 1, 0)),
+		},
+		{
+			name: "trial1day",
+			input: SubscriptionInput{
+				PlanID:             "plan1",
+				PaymentMethodToken: customer.CreditCards[0].Token,
+				TrialDuration:      1,
+				TrialDurationUnit:  "day",
+				TrialPeriod:        true,
+			},
+			wantStartDate:       btdate.Date{},
+			wantNextBillingDate: btdate.FromTime(time.Now().UTC().AddDate(0, 0, 1)),
+		},
+		{
+			name: "trial2weeks",
+			input: SubscriptionInput{
+				PlanID:             "plan1",
+				PaymentMethodToken: customer.CreditCards[0].Token,
+				TrialDuration:      2,
+				TrialDurationUnit:  "month",
+				TrialPeriod:        true,
+			},
+			wantStartDate:       btdate.Date{},
+			wantNextBillingDate: btdate.FromTime(time.Now().UTC().AddDate(0, 2, 0)),
+		},
+	}
+
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+
+			subscription, err := bt.Subscription().Create(test.input)
+			if err != nil {
+				t.Fatalf("unexpected err: %s", err)
+			}
+			if subscription.PlanID != "plan1" {
+				t.Errorf("subscription.PlanID: got: %s, want: plan1", subscription.PlanID)
+			}
+			if subscription.BillingPeriodStartDate != test.wantStartDate {
+				t.Errorf("subscription.BillingPeriodStartDate: got %s, want %s", subscription.BillingPeriodStartDate, test.wantStartDate)
+			}
+			if subscription.NextBillingDate != test.wantNextBillingDate {
+				t.Errorf("subscription.NextBillingDate: got %s, want %s", subscription.NextBillingDate, test.wantNextBillingDate)
+			}
+		})
+	}
 
 	t.Run("withoutToken", func(t *testing.T) {
 		_, err := bt.Subscription().Create(SubscriptionInput{PlanID: "plan1"})
