@@ -53,6 +53,9 @@ func Today() Date {
 
 // UnmarshalText implements the encoding.TextUnmarshaler interface.
 func (d *Date) UnmarshalText(data []byte) error {
+	if data == nil {
+		return nil
+	}
 	date, err := Parse(string(data))
 	if err != nil {
 		return err
