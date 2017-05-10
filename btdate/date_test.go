@@ -43,15 +43,35 @@ func TestToday(t *testing.T) {
 
 func TestUnmarshal(t *testing.T) {
 
-	t.Run("shouldWork", func(t *testing.T) {
-		var got Date
-		if err := got.UnmarshalText([]byte("2017-01-03")); err != nil {
-			t.Fatalf("unexpected err: %s", err)
-		}
-		if got.String() != "2017-01-03" {
-			t.Errorf("UnmarshalText: got %s, want 2017-01-03", got)
-		}
-	})
+	tests := []struct {
+		name  string
+		input []byte
+		want  Date
+	}{
+		{
+			name:  "normal",
+			input: []byte("2017-01-03"),
+			want:  Date{3, time.January, 2017},
+		},
+		{
+			name:  "empty",
+			input: nil,
+			want:  Date{0, 0, 0},
+		},
+	}
+
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			var got Date
+			if err := got.UnmarshalText([]byte(test.input)); err != nil {
+				t.Fatalf("unexpected err: %s", err)
+			}
+			if got != test.want {
+				t.Errorf("UnmarshalText: got %s, want %s", got, test.want)
+			}
+		})
+	}
 
 	t.Run("malformed", func(t *testing.T) {
 		var got Date
