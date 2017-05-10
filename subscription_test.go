@@ -1,6 +1,7 @@
 package braintree
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -223,4 +224,34 @@ func TestUpdateSubscription(t *testing.T) {
 			t.Errorf("got: %+v, want: <nil>", subscription)
 		}
 	})
+}
+
+// TestGeneratePastDueSubscriptions will generate subscriptions for a user
+//"pastDue" with variying trial durations. When the trial is over the charge
+// attempt will fail and the subscription state will be Past Due.
+func TestGeneratePastDueSubscriptions(t *testing.T) {
+	t.Skip("Not really a test.")
+
+	customer, err := bt.Customer().Find("pastDue")
+	if err != nil {
+		t.Fatalf("unexpected err: %s", err)
+	}
+
+	twoThousand := decimal.NewFromFloat(2000)
+	for day := 1; day <= 14; day++ {
+		fmt.Printf("day %d\n", day)
+		for count := 0; count < 10; count++ {
+			_, err := bt.Subscription().Create(SubscriptionInput{
+				PlanID:             "plan1",
+				PaymentMethodToken: customer.CreditCards[0].Token,
+				Price:              &twoThousand,
+				TrialDuration:      day,
+				TrialDurationUnit:  "day",
+				TrialPeriod:        true,
+			})
+			if err != nil {
+				t.Fatalf("unexpected err: %s", err)
+			}
+		}
+	}
 }
