@@ -1,6 +1,7 @@
 package braintree
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -171,6 +172,35 @@ func TestFindSubscription(t *testing.T) {
 	})
 }
 
+func TestRetryChargeSubscription(t *testing.T) {
+
+	t.Run("nonExisting", func(t *testing.T) {
+		t.Parallel()
+		if err := bt.Subscription().RetryCharge("sub2"); err == nil || err.Error() != "404 Not Found" {
+			t.Errorf("got: %v, want: 404 Not Found", err)
+		}
+	})
+
+	t.Run("notPastDue", func(t *testing.T) {
+		t.Parallel()
+		err := bt.Subscription().RetryCharge("sub1")
+		apiErr, ok := err.(*APIError)
+		if !ok {
+			t.Fatalf("expected APIError")
+		}
+		if apiErr == nil || apiErr.Code != 81531 {
+			t.Errorf("got %v, want error code 81531", apiErr)
+		}
+	})
+
+	t.Run("shouldWork", func(t *testing.T) {
+		t.Skip("manual intervention required")
+		if err := bt.Subscription().RetryCharge(""); err != nil {
+			t.Fatalf("unexpected err: %s", err)
+		}
+	})
+}
+
 func TestUpdateSubscription(t *testing.T) {
 	t.Parallel()
 
@@ -223,4 +253,34 @@ func TestUpdateSubscription(t *testing.T) {
 			t.Errorf("got: %+v, want: <nil>", subscription)
 		}
 	})
+}
+
+// TestGeneratePastDueSubscriptions will generate subscriptions for a user
+// "pastDue" with variying trial durations. When the trial is over the charge
+// attempt will fail and the subscription state will be Past Due.
+func TestGeneratePastDueSubscriptions(t *testing.T) {
+	t.Skip("Not really a test.")
+
+	customer, err := bt.Customer().Find("pastDue")
+	if err != nil {
+		t.Fatalf("unexpected err: %s", err)
+	}
+
+	twoThousand := decimal.NewFromFloat(2000)
+	for day := 1; day <= 14; day++ {
+		fmt.Printf("day %d\n", day)
+		for count := 0; count < 10; count++ {
+			_, err := bt.Subscription().Create(SubscriptionInput{
+				PlanID:             "plan1",
+				PaymentMethodToken: customer.CreditCards[0].Token,
+				Price:              &twoThousand,
+				TrialDuration:      day,
+				TrialDurationUnit:  "day",
+				TrialPeriod:        true,
+			})
+			if err != nil {
+				t.Fatalf("unexpected err: %s", err)
+			}
+		}
+	}
 }

@@ -5,10 +5,19 @@ import "net/http"
 import "bytes"
 import "io/ioutil"
 
-func TestError(t *testing.T) {
+func TestAPIError(t *testing.T) {
 	t.Parallel()
 
 	err := &APIError{Code: 5, Message: "Johnny"}
+	got := err.Error()
+	want := "Code 5: Johnny"
+	if got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+}
+
+func TestProcessError(t *testing.T) {
+	err := &ProcessorError{Code: 5, Message: "Johnny"}
 	got := err.Error()
 	want := "Code 5: Johnny"
 	if got != want {
