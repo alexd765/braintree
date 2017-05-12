@@ -109,6 +109,36 @@ func (sgw SubscriptionGW) Find(id string) (*Subscription, error) {
 	return subscription, nil
 }
 
+// RetryCharge will retry to charge a Past Due subscription.
+func (sgw SubscriptionGW) RetryCharge(id string) error {
+	subscription, err := sgw.Find(id)
+	if err != nil {
+		return err
+	}
+
+	txInput := &struct {
+		XMLName        xml.Name
+		Amount         decimal.Decimal    `xml:"amount"`
+		Options        TransactionOptions `xml:"options"`
+		SubscriptionID string             `xml:"subscription-id"`
+		Type           string             `xml:"type"`
+	}{
+		XMLName: xml.Name{Local: "transaction"},
+		Amount:  subscription.Balance,
+		Options: TransactionOptions{
+			SubmitForSettlement: true,
+		},
+		SubscriptionID: id,
+		Type:           TransactionTypeSale,
+	}
+	transaction := &Transaction{}
+	if err := sgw.bt.execute(http.MethodPost, "transactions", transaction, txInput); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // Update a subscription on braintree.
 //
 // ID is required.

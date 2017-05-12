@@ -172,6 +172,27 @@ func TestFindSubscription(t *testing.T) {
 	})
 }
 
+func TestRetryChargeSubscription(t *testing.T) {
+
+	t.Run("notPastDue", func(t *testing.T) {
+		err := bt.Subscription().RetryCharge("sub1")
+		apiErr, ok := err.(*APIError)
+		if !ok {
+			t.Fatalf("expected APIError")
+		}
+		if apiErr == nil || apiErr.Code != 81531 {
+			t.Errorf("got %v, want error code 81531", apiErr)
+		}
+	})
+
+	t.Run("shouldWork", func(t *testing.T) {
+		t.Skip("manual intervention required")
+		if err := bt.Subscription().RetryCharge(""); err != nil {
+			t.Fatalf("unexpected err: %s", err)
+		}
+	})
+}
+
 func TestUpdateSubscription(t *testing.T) {
 	t.Parallel()
 
