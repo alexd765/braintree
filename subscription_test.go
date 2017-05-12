@@ -174,7 +174,15 @@ func TestFindSubscription(t *testing.T) {
 
 func TestRetryChargeSubscription(t *testing.T) {
 
+	t.Run("nonExisting", func(t *testing.T) {
+		t.Parallel()
+		if err := bt.Subscription().RetryCharge("sub2"); err == nil || err.Error() != "404 Not Found" {
+			t.Errorf("got: %v, want: 404 Not Found", err)
+		}
+	})
+
 	t.Run("notPastDue", func(t *testing.T) {
+		t.Parallel()
 		err := bt.Subscription().RetryCharge("sub1")
 		apiErr, ok := err.(*APIError)
 		if !ok {
@@ -248,7 +256,7 @@ func TestUpdateSubscription(t *testing.T) {
 }
 
 // TestGeneratePastDueSubscriptions will generate subscriptions for a user
-//"pastDue" with variying trial durations. When the trial is over the charge
+// "pastDue" with variying trial durations. When the trial is over the charge
 // attempt will fail and the subscription state will be Past Due.
 func TestGeneratePastDueSubscriptions(t *testing.T) {
 	t.Skip("Not really a test.")
