@@ -60,12 +60,12 @@ func TestCreateTransaction(t *testing.T) {
 			PaymentMethodToken: customer.CreditCards[0].Token,
 			Type:               TransactionTypeSale,
 		})
-		processorErr, ok := err.(*ProcessorResponseError)
+		processorErr, ok := err.(*ProcessorError)
 		if !ok {
 			t.Errorf("expected error of type ProcessorError")
 		}
 		if processorErr == nil || processorErr.Code != 2000 {
-			t.Errorf("processor response error code: got %v, want 2000", processorErr)
+			t.Errorf("processor error code: got %v, want 2000", processorErr)
 		}
 	})
 

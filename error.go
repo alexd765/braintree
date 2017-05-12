@@ -15,17 +15,17 @@ type APIError struct {
 	Message   string `xml:"message"`
 }
 
-// A ProcessorResponseError is returned from braintree if a payment failed.
-type ProcessorResponseError struct {
-	Code    int    `xml:"processor-response-code"`
-	Message string `xml:"processor-response-text"`
+// A ProcessorError is returned from braintree if a payment failed.
+type ProcessorError struct {
+	Code    int
+	Message string
 }
 
 func (e *APIError) Error() string {
 	return fmt.Sprintf("Code %d: %s", e.Code, e.Message)
 }
 
-func (e *ProcessorResponseError) Error() string {
+func (e *ProcessorError) Error() string {
 	return fmt.Sprintf("Code %d: %s", e.Code, e.Message)
 }
 
@@ -66,7 +66,7 @@ func parseError(resp *http.Response) error {
 		if err != nil {
 			return err
 		}
-		return &ProcessorResponseError{
+		return &ProcessorError{
 			Code:    code,
 			Message: errs.TransactionResponse.ProcessorResponseText,
 		}
