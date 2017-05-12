@@ -39,6 +39,36 @@ func TestCreateTransaction(t *testing.T) {
 
 	})
 
+	t.Run("paymentFailed", func(t *testing.T) {
+		t.Parallel()
+
+		customer, err := bt.Customer().Create(CustomerInput{
+			FirstName: "first",
+			CreditCard: &CreditCardInput{
+				PaymentMethodNonce: "fake-valid-visa-nonce",
+			},
+		})
+		if err != nil {
+			t.Fatalf("unexpected err: %s", err)
+		}
+
+		_, err = bt.Transaction().Create(TransactionInput{
+			Amount: decimal.NewFromFloat(2000),
+			Options: &TransactionOptions{
+				StoreInVaultOnSuccess: true,
+			},
+			PaymentMethodToken: customer.CreditCards[0].Token,
+			Type:               TransactionTypeSale,
+		})
+		processorErr, ok := err.(*ProcessorResponseError)
+		if !ok {
+			t.Errorf("expected error of type ProcessorError")
+		}
+		if processorErr == nil || processorErr.Code != 2000 {
+			t.Errorf("processor response error code: got %v, want 2000", processorErr)
+		}
+	})
+
 	t.Run("withoutToken", func(t *testing.T) {
 		t.Parallel()
 
