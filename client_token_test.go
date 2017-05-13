@@ -51,12 +51,12 @@ func TestGenerateClientToken(t *testing.T) {
 	t.Run("invalidVersion", func(t *testing.T) {
 		t.Parallel()
 		_, err := bt.ClientToken().Generate(ClientTokenInput{})
-		apiErr, ok := err.(*APIError)
+		valErr, ok := err.(*ValidationError)
 		if !ok {
-			t.Errorf("expected error of type APIError")
+			t.Errorf("expected ValidationError")
 		}
-		if apiErr == nil || apiErr.Code != 92806 {
-			t.Errorf("api error code: got %v, want 92806", apiErr)
+		if valErr == nil || valErr.Code != 92806 {
+			t.Errorf("got %v, want error code 92806", valErr)
 		}
 	})
 }

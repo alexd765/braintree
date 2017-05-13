@@ -5,10 +5,10 @@ import "net/http"
 import "bytes"
 import "io/ioutil"
 
-func TestAPIError(t *testing.T) {
+func TestValidationError(t *testing.T) {
 	t.Parallel()
 
-	err := &APIError{Code: 5, Message: "Johnny"}
+	err := &ValidationError{Code: 5, Message: "Johnny"}
 	got := err.Error()
 	want := "Code 5: Johnny"
 	if got != want {

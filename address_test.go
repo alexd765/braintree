@@ -37,12 +37,12 @@ func TestCreateAddress(t *testing.T) {
 		t.Parallel()
 
 		_, err := bt.Address().Create("cus1", AddressInput{})
-		apiErr, ok := err.(*APIError)
+		valErr, ok := err.(*ValidationError)
 		if !ok {
-			t.Fatalf("expected APIError")
+			t.Fatalf("expected ValidationError")
 		}
-		if apiErr == nil || apiErr.Code != 81801 {
-			t.Errorf("got %v, want error code 81801", apiErr)
+		if valErr == nil || valErr.Code != 81801 {
+			t.Errorf("got %v, want error code 81801", valErr)
 		}
 	})
 }

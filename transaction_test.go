@@ -76,12 +76,12 @@ func TestCreateTransaction(t *testing.T) {
 			Amount: decimal.NewFromFloat(3),
 			Type:   TransactionTypeSale,
 		})
-		apiErr, ok := err.(*APIError)
+		valErr, ok := err.(*ValidationError)
 		if !ok {
-			t.Errorf("expected error of type APIError")
+			t.Errorf("expected ValidationError")
 		}
-		if apiErr == nil || apiErr.Code != 91508 {
-			t.Errorf("api error code: got %v, want 91508", apiErr)
+		if valErr == nil || valErr.Code != 91508 {
+			t.Errorf("got %v, want error code 91508", valErr)
 		}
 	})
 }

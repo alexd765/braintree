@@ -8,24 +8,24 @@ import (
 	"strconv"
 )
 
-// An APIError is returned from braintree in response to an invalid api call.
-type APIError struct {
-	Attribute string `xml:"attribute"`
-	Code      int    `xml:"code"`
-	Message   string `xml:"message"`
-}
-
 // A ProcessorError is returned from braintree if a payment failed.
 type ProcessorError struct {
 	Code    int
 	Message string
 }
 
-func (e *APIError) Error() string {
-	return fmt.Sprintf("Code %d: %s", e.Code, e.Message)
+// A ValidationError is returned from braintree in response to an invalid api call.
+type ValidationError struct {
+	Attribute string `xml:"attribute"`
+	Code      int    `xml:"code"`
+	Message   string `xml:"message"`
 }
 
 func (e *ProcessorError) Error() string {
+	return fmt.Sprintf("Code %d: %s", e.Code, e.Message)
+}
+
+func (e *ValidationError) Error() string {
 	return fmt.Sprintf("Code %d: %s", e.Code, e.Message)
 }
 
@@ -36,31 +36,31 @@ func parseError(resp *http.Response) error {
 	}
 
 	errs := struct {
-		XMLName             xml.Name     `xml:"api-error-response"`
-		Address             []APIError   `xml:"errors>address>errors>error"`
-		ClientToken         []APIError   `xml:"errors>client-token>errors>error"`
-		CreditCard          []APIError   `xml:"errors>credit-card>errors>error"`
-		Customer            []APIError   `xml:"errors>customer>errors>error"`
-		Subscription        []APIError   `xml:"errors>subscription>errors>error"`
-		Transaction         []APIError   `xml:"errors>transaction>errors>error"`
-		TransactionResponse *Transaction `xml:"transaction"`
+		XMLName             xml.Name          `xml:"api-error-response"`
+		Address             []ValidationError `xml:"errors>address>errors>error"`
+		ClientToken         []ValidationError `xml:"errors>client-token>errors>error"`
+		CreditCard          []ValidationError `xml:"errors>credit-card>errors>error"`
+		Customer            []ValidationError `xml:"errors>customer>errors>error"`
+		Subscription        []ValidationError `xml:"errors>subscription>errors>error"`
+		Transaction         []ValidationError `xml:"errors>transaction>errors>error"`
+		TransactionResponse *Transaction      `xml:"transaction"`
 	}{}
 
 	if err := xml.NewDecoder(resp.Body).Decode(&errs); err != nil {
 		return err
 	}
 
-	// api errors have the highest priority
-	apiErrs := append(errs.Address, errs.ClientToken...)
-	apiErrs = append(apiErrs, errs.CreditCard...)
-	apiErrs = append(apiErrs, errs.Customer...)
-	apiErrs = append(apiErrs, errs.Subscription...)
-	apiErrs = append(apiErrs, errs.Transaction...)
-	if len(apiErrs) > 0 {
-		return &apiErrs[0]
+	// validation errors have the highest priority
+	valErrs := append(errs.Address, errs.ClientToken...)
+	valErrs = append(valErrs, errs.CreditCard...)
+	valErrs = append(valErrs, errs.Customer...)
+	valErrs = append(valErrs, errs.Subscription...)
+	valErrs = append(valErrs, errs.Transaction...)
+	if len(valErrs) > 0 {
+		return &valErrs[0]
 	}
 
-	// then we look for processor response errors
+	// then we look for processor errors
 	if errs.TransactionResponse != nil && errs.TransactionResponse.ProcessorResponseCode != "" {
 		code, err := strconv.Atoi(errs.TransactionResponse.ProcessorResponseCode)
 		if err != nil {

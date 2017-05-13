@@ -99,12 +99,12 @@ func TestCreatePaymentMethod(t *testing.T) {
 	t.Run("noCustomerID", func(t *testing.T) {
 		t.Parallel()
 		_, err := bt.PaymentMethod().Create(PaymentMethodInput{PaymentMethodNonce: "fake-valid-visa-nonce"})
-		apiErr, ok := err.(*APIError)
+		valErr, ok := err.(*ValidationError)
 		if !ok {
-			t.Error("expected APIError")
+			t.Error("expected ValidationError")
 		}
-		if apiErr == nil || apiErr.Code != 91704 {
-			t.Errorf("got %v, want error code 91704", apiErr)
+		if valErr == nil || valErr.Code != 91704 {
+			t.Errorf("got %v, want error code 91704", valErr)
 		}
 	})
 }

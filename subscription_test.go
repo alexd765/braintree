@@ -128,12 +128,12 @@ func TestCreateSubscription(t *testing.T) {
 
 	t.Run("withoutToken", func(t *testing.T) {
 		_, err := bt.Subscription().Create(SubscriptionInput{PlanID: "plan1"})
-		apiErr, ok := err.(*APIError)
+		valErr, ok := err.(*ValidationError)
 		if !ok {
-			t.Fatalf("expected APIError")
+			t.Fatalf("expected ValidationError")
 		}
-		if apiErr == nil || apiErr.Code != 91903 {
-			t.Errorf("got %v, want error code 91903", apiErr)
+		if valErr == nil || valErr.Code != 91903 {
+			t.Errorf("got %v, want error code 91903", valErr)
 		}
 	})
 }
@@ -184,12 +184,12 @@ func TestRetryChargeSubscription(t *testing.T) {
 	t.Run("notPastDue", func(t *testing.T) {
 		t.Parallel()
 		err := bt.Subscription().RetryCharge("sub1")
-		apiErr, ok := err.(*APIError)
+		valErr, ok := err.(*ValidationError)
 		if !ok {
-			t.Fatalf("expected APIError")
+			t.Fatalf("expected ValidationError")
 		}
-		if apiErr == nil || apiErr.Code != 81531 {
-			t.Errorf("got %v, want error code 81531", apiErr)
+		if valErr == nil || valErr.Code != 81531 {
+			t.Errorf("got %v, want error code 81531", valErr)
 		}
 	})
 
