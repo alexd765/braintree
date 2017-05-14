@@ -36,12 +36,12 @@ func TestCreateCustomer(t *testing.T) {
 	t.Run("existing", func(t *testing.T) {
 		t.Parallel()
 		_, err := bt.Customer().Create(CustomerInput{ID: "cus1", FirstName: "first"})
-		apiErr, ok := err.(*APIError)
+		valErr, ok := err.(*ValidationError)
 		if !ok {
-			t.Errorf("expected error of type APIError")
+			t.Errorf("expected ValidationError")
 		}
-		if apiErr == nil || apiErr.Code != 91609 {
-			t.Errorf("api error code: got %v, want 91609", apiErr)
+		if valErr == nil || valErr.Code != 91609 {
+			t.Errorf("got %v, want error code 91609", valErr)
 		}
 	})
 }
