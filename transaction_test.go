@@ -9,18 +9,18 @@ import (
 func TestCreateTransaction(t *testing.T) {
 	t.Parallel()
 
+	customer, err := bt.Customer().Create(CustomerInput{
+		FirstName: "first",
+		CreditCard: &CreditCardInput{
+			PaymentMethodNonce: "fake-valid-visa-nonce",
+		},
+	})
+	if err != nil {
+		t.Fatalf("unexpected err: %s", err)
+	}
+
 	t.Run("shouldWork", func(t *testing.T) {
 		t.Parallel()
-
-		customer, err := bt.Customer().Create(CustomerInput{
-			FirstName: "first",
-			CreditCard: &CreditCardInput{
-				PaymentMethodNonce: "fake-valid-visa-nonce",
-			},
-		})
-		if err != nil {
-			t.Fatalf("unexpected err: %s", err)
-		}
 
 		transaction, err := bt.Transaction().Create(TransactionInput{
 			Amount: decimal.NewFromFloat(3),
@@ -36,21 +36,37 @@ func TestCreateTransaction(t *testing.T) {
 		if !transaction.Amount.Equals(decimal.NewFromFloat(3)) {
 			t.Errorf("transaction.Amount: got %s, want 3", transaction.Amount)
 		}
+	})
+
+	t.Run("duplicate", func(t *testing.T) {
+		t.Parallel()
+
+		txInput := TransactionInput{
+			Amount: decimal.NewFromFloat(3.8),
+			Options: &TransactionOptions{
+				StoreInVaultOnSuccess: true,
+			},
+			PaymentMethodToken: customer.CreditCards[0].Token,
+			Type:               TransactionTypeSale,
+		}
+
+		if _, err := bt.Transaction().Create(txInput); err != nil {
+			t.Fatalf("unexpected err: %s", err)
+		}
+
+		_, err := bt.Transaction().Create(txInput)
+		gatewayErr, ok := err.(*GatewayError)
+		if !ok {
+			t.Fatalf("expected error of type GatewayError")
+		}
+		if gatewayErr == nil || gatewayErr.Message != "duplicate" {
+			t.Errorf("gateway error: got %v, want duplicate", gatewayErr)
+		}
 
 	})
 
 	t.Run("paymentFailed", func(t *testing.T) {
 		t.Parallel()
-
-		customer, err := bt.Customer().Create(CustomerInput{
-			FirstName: "first",
-			CreditCard: &CreditCardInput{
-				PaymentMethodNonce: "fake-valid-visa-nonce",
-			},
-		})
-		if err != nil {
-			t.Fatalf("unexpected err: %s", err)
-		}
 
 		_, err = bt.Transaction().Create(TransactionInput{
 			Amount: decimal.NewFromFloat(2000),

@@ -5,6 +5,17 @@ import "net/http"
 import "bytes"
 import "io/ioutil"
 
+func TestGatewayError(t *testing.T) {
+	t.Parallel()
+
+	err := &GatewayError{Message: "Johnny"}
+	got := err.Error()
+	want := "Johnny"
+	if got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+}
+
 func TestValidationError(t *testing.T) {
 	t.Parallel()
 
@@ -17,6 +28,8 @@ func TestValidationError(t *testing.T) {
 }
 
 func TestProcessError(t *testing.T) {
+	t.Parallel()
+
 	err := &ProcessorError{Code: 5, Message: "Johnny"}
 	got := err.Error()
 	want := "Code 5: Johnny"

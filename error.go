@@ -8,6 +8,12 @@ import (
 	"strconv"
 )
 
+// A GatewayError is returned from braintree if a payment is blocked by
+// gateway settings of the braintree account.
+type GatewayError struct {
+	Message string
+}
+
 // A ProcessorError is returned from braintree if a payment failed.
 type ProcessorError struct {
 	Code    int
@@ -19,6 +25,10 @@ type ValidationError struct {
 	Attribute string `xml:"attribute"`
 	Code      int    `xml:"code"`
 	Message   string `xml:"message"`
+}
+
+func (e *GatewayError) Error() string {
+	return e.Message
 }
 
 func (e *ProcessorError) Error() string {
@@ -50,7 +60,7 @@ func parseError(resp *http.Response) error {
 		return err
 	}
 
-	// validation errors have the highest priority
+	// look for ValidationErrors
 	valErrs := append(errs.Address, errs.ClientToken...)
 	valErrs = append(valErrs, errs.CreditCard...)
 	valErrs = append(valErrs, errs.Customer...)
@@ -60,15 +70,25 @@ func parseError(resp *http.Response) error {
 		return &valErrs[0]
 	}
 
-	// then we look for processor errors
-	if errs.TransactionResponse != nil && errs.TransactionResponse.ProcessorResponseCode != "" {
-		code, err := strconv.Atoi(errs.TransactionResponse.ProcessorResponseCode)
-		if err != nil {
-			return err
+	if tx := errs.TransactionResponse; tx != nil {
+
+		// look for GatewayErrors
+		if tx.Status == TransactionStatusGatewayRejected {
+			return &GatewayError{
+				Message: tx.GatewayRejectionReason,
+			}
 		}
-		return &ProcessorError{
-			Code:    code,
-			Message: errs.TransactionResponse.ProcessorResponseText,
+
+		// look or ProcessorErrors
+		if tx.ProcessorResponseCode != "" {
+			code, err := strconv.Atoi(tx.ProcessorResponseCode)
+			if err != nil {
+				return err
+			}
+			return &ProcessorError{
+				Code:    code,
+				Message: tx.ProcessorResponseText,
+			}
 		}
 	}
 

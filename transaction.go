@@ -26,7 +26,7 @@ const (
 	TransactionStatusSettlementConfirmed    = "settlement_confirmed"
 	TransactionStatusSettlementDeclined     = "settlement_declined"
 	TransactionStatusFailed                 = "failed"
-	TransactionStatusGatewayRejected        = "gateway_reject"
+	TransactionStatusGatewayRejected        = "gateway_rejected"
 	TransactionStatusProcessorDeclined      = "processor_declined"
 	TransactionStatusSettled                = "settled"
 	TransactionStatusSettling               = "settling"
@@ -62,12 +62,12 @@ type Transaction struct {
 	// DisbursementDetails
 	// Discounts
 	// Disputes
-	EscrowStatus string `xml:"escrow-status"`
-	// GatewayRejectionReason
-	ID                    string `xml:"id"`
-	MerchantAccountID     string `xml:"merchant-account-id"`
-	OrderID               string `xml:"order-id"`
-	PaymentInstrumentType string `xml:"payment-instrument-type"`
+	EscrowStatus           string `xml:"escrow-status"`
+	GatewayRejectionReason string `xml:"gateway-rejection-reason"`
+	ID                     string `xml:"id"`
+	MerchantAccountID      string `xml:"merchant-account-id"`
+	OrderID                string `xml:"order-id"`
+	PaymentInstrumentType  string `xml:"payment-instrument-type"`
 	// PaypalDetails
 	PlanID string `xml:"plan-id"`
 	// ProcessorAuthoriationCode
