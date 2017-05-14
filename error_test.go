@@ -63,6 +63,14 @@ func TestParseError(t *testing.T) {
 			},
 			wantError: "EOF",
 		},
+		{
+			name: "invalidProcessorResponse",
+			resp: &http.Response{
+				Body:       ioutil.NopCloser(bytes.NewBufferString("<api-error-response><transaction><processor-response-code>text</processor-response-code></transaction></api-error-response>")),
+				StatusCode: http.StatusUnprocessableEntity,
+			},
+			wantError: "strconv.Atoi: parsing \"text\": invalid syntax",
+		},
 	}
 
 	for _, test := range tests {
