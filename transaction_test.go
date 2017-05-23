@@ -1,6 +1,7 @@
 package braintree
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/shopspring/decimal"
@@ -92,25 +93,23 @@ func TestCreateTransaction(t *testing.T) {
 func TestFindTransaction(t *testing.T) {
 	t.Parallel()
 
-	t.Run("existing", func(t *testing.T) {
-		t.Parallel()
+	tests := []struct {
+		name    string
+		id      string
+		wantErr error
+	}{
+		{name: "existing", id: "bx9a7av8", wantErr: nil},
+		{name: "nonExisting", id: "nonExisting", wantErr: errors.New("404 Not Found")},
+	}
 
-		transaction, err := bt.Transaction().Find("bx9a7av8")
-		if err != nil {
-			t.Fatalf("unexpected err: %s", err)
-		}
-		if transaction.Status != TransactionStatusSettled {
-			t.Errorf("transaction.Status: got %s, want %s", transaction.Status, TransactionStatusSettled)
-		}
-	})
-
-	t.Run("nonExisting", func(t *testing.T) {
-		t.Parallel()
-
-		if _, err := bt.Transaction().Find("nonExisting"); err == nil || err.Error() != "404 Not Found" {
-			t.Errorf("got: %v, want: 404 Not Found", err)
-		}
-	})
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+			_, err := bt.Transaction().Find(test.id)
+			compareErrors(t, err, test.wantErr)
+		})
+	}
 }
 
 func TestRefundTransaction(t *testing.T) {
