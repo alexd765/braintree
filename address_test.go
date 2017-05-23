@@ -11,10 +11,7 @@ func TestCreateAddress(t *testing.T) {
 	t.Run("shouldWork", func(t *testing.T) {
 		t.Parallel()
 
-		customer, err := bt.Customer().Create(CustomerInput{FirstName: "test", LastName: "create address"})
-		if err != nil {
-			t.Fatalf("unexpected err: %s", err)
-		}
+		customer := createTestCustomer(t)
 
 		got, err := bt.Address().Create(customer.ID, AddressInput{StreetAddress: "street"})
 		if err != nil {
@@ -52,10 +49,8 @@ func TestDeleteAddress(t *testing.T) {
 
 	t.Run("shouldWork", func(t *testing.T) {
 		t.Parallel()
-		customer, err := bt.Customer().Create(CustomerInput{FirstName: "test", LastName: "create address"})
-		if err != nil {
-			t.Fatalf("unexpected err: %s", err)
-		}
+
+		customer := createTestCustomer(t)
 
 		address, err := bt.Address().Create(customer.ID, AddressInput{StreetAddress: "street"})
 		if err != nil {
@@ -108,10 +103,8 @@ func TestUpdateAddress(t *testing.T) {
 
 	t.Run("shouldWork", func(t *testing.T) {
 		t.Parallel()
-		customer, err := bt.Customer().Create(CustomerInput{FirstName: "test", LastName: "update address"})
-		if err != nil {
-			t.Fatalf("unexpected err: %s", err)
-		}
+
+		customer := createTestCustomer(t)
 
 		address, err := bt.Address().Create(customer.ID, AddressInput{StreetAddress: "street"})
 		if err != nil {

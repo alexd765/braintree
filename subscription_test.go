@@ -14,15 +14,8 @@ func TestCancelSubscription(t *testing.T) {
 
 	t.Run("existing", func(t *testing.T) {
 		t.Parallel()
-		customer, err := bt.Customer().Create(CustomerInput{
-			FirstName: "first",
-			CreditCard: &CreditCardInput{
-				PaymentMethodNonce: "fake-valid-visa-nonce",
-			},
-		})
-		if err != nil {
-			t.Fatalf("unexpected err: %s", err)
-		}
+
+		customer := createTestCustomer(t)
 
 		subscription, err := bt.Subscription().Create(
 			SubscriptionInput{
@@ -54,15 +47,7 @@ func TestCancelSubscription(t *testing.T) {
 func TestCreateSubscription(t *testing.T) {
 	t.Parallel()
 
-	customer, err := bt.Customer().Create(CustomerInput{
-		FirstName: "first",
-		CreditCard: &CreditCardInput{
-			PaymentMethodNonce: "fake-valid-visa-nonce",
-		},
-	})
-	if err != nil {
-		t.Fatalf("unexpected err: %s", err)
-	}
+	customer := createTestCustomer(t)
 
 	tests := []struct {
 		name                string
@@ -207,15 +192,7 @@ func TestUpdateSubscription(t *testing.T) {
 	t.Run("existing", func(t *testing.T) {
 		t.Parallel()
 
-		customer, err := bt.Customer().Create(CustomerInput{
-			FirstName: "first",
-			CreditCard: &CreditCardInput{
-				PaymentMethodNonce: "fake-valid-visa-nonce",
-			},
-		})
-		if err != nil {
-			t.Fatalf("unexpected err: %s", err)
-		}
+		customer := createTestCustomer(t)
 
 		subscription, err := bt.Subscription().Create(
 			SubscriptionInput{

@@ -110,15 +110,7 @@ func TestRefundTransaction(t *testing.T) {
 	t.Run("shouldWork", func(t *testing.T) {
 		t.Parallel()
 
-		customer, err := bt.Customer().Create(CustomerInput{
-			FirstName: "first",
-			CreditCard: &CreditCardInput{
-				PaymentMethodNonce: "fake-valid-visa-nonce",
-			},
-		})
-		if err != nil {
-			t.Fatalf("unexpected err: %s", err)
-		}
+		customer := createTestCustomer(t)
 
 		transaction, err := bt.Transaction().Create(TransactionInput{
 			Amount: decimal.NewFromFloat(3.7),
@@ -170,15 +162,7 @@ func TestSettleTransaction(t *testing.T) {
 	t.Run("shouldWork", func(t *testing.T) {
 		t.Parallel()
 
-		customer, err := bt.Customer().Create(CustomerInput{
-			FirstName: "first",
-			CreditCard: &CreditCardInput{
-				PaymentMethodNonce: "fake-valid-visa-nonce",
-			},
-		})
-		if err != nil {
-			t.Fatalf("unexpected err: %s", err)
-		}
+		customer := createTestCustomer(t)
 
 		transaction, err := bt.Transaction().Create(TransactionInput{
 			Amount: decimal.NewFromFloat(3.6),
@@ -219,15 +203,7 @@ func TestVoidTransaction(t *testing.T) {
 	t.Run("shouldWork", func(t *testing.T) {
 		t.Parallel()
 
-		customer, err := bt.Customer().Create(CustomerInput{
-			FirstName: "first",
-			CreditCard: &CreditCardInput{
-				PaymentMethodNonce: "fake-valid-visa-nonce",
-			},
-		})
-		if err != nil {
-			t.Fatalf("unexpected err: %s", err)
-		}
+		customer := createTestCustomer(t)
 
 		transaction, err := bt.Transaction().Create(TransactionInput{
 			Amount: decimal.NewFromFloat(3.5),
