@@ -10,15 +10,7 @@ import (
 func TestCreateTransaction(t *testing.T) {
 	t.Parallel()
 
-	customer, err := bt.Customer().Create(CustomerInput{
-		FirstName: "first",
-		CreditCard: &CreditCardInput{
-			PaymentMethodNonce: "fake-valid-visa-nonce",
-		},
-	})
-	if err != nil {
-		t.Fatalf("unexpected err: %s", err)
-	}
+	customer := createTestCustomer(t)
 
 	tests := []struct {
 		name    string

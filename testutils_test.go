@@ -16,3 +16,17 @@ func compareErrors(t *testing.T, got, want error) {
 		t.Errorf("error: got '%v'; want '%v'", got, want)
 	}
 }
+
+func createTestCustomer(t *testing.T) *Customer {
+	customer, err := bt.Customer().Create(CustomerInput{
+		FirstName: "test",
+		LastName:  "customer",
+		CreditCard: &CreditCardInput{
+			PaymentMethodNonce: "fake-valid-visa-nonce",
+		},
+	})
+	if err != nil {
+		t.Fatalf("unexpected error while creating test customer: %s", err)
+	}
+	return customer
+}
