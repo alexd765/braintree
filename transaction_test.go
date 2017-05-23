@@ -1,6 +1,7 @@
 package braintree
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/shopspring/decimal"
@@ -9,34 +10,55 @@ import (
 func TestCreateTransaction(t *testing.T) {
 	t.Parallel()
 
-	customer, err := bt.Customer().Create(CustomerInput{
-		FirstName: "first",
-		CreditCard: &CreditCardInput{
-			PaymentMethodNonce: "fake-valid-visa-nonce",
+	customer := createTestCustomer(t)
+
+	tests := []struct {
+		name    string
+		txInput TransactionInput
+		wantErr error
+	}{
+		{
+			name: "shouldWork",
+			txInput: TransactionInput{
+				Amount: decimal.NewFromFloat(3),
+				Options: &TransactionOptions{
+					StoreInVaultOnSuccess: true,
+				},
+				PaymentMethodToken: customer.CreditCards[0].Token,
+				Type:               TransactionTypeSale,
+			},
+			wantErr: nil,
 		},
-	})
-	if err != nil {
-		t.Fatalf("unexpected err: %s", err)
+		{
+			name: "withoutToken",
+			txInput: TransactionInput{
+				Amount: decimal.NewFromFloat(3),
+				Type:   TransactionTypeSale,
+			},
+			wantErr: &ValidationError{"", 91508, "Cannot determine payment method."},
+		},
+		{
+			name: "paymentFailed",
+			txInput: TransactionInput{
+				Amount: decimal.NewFromFloat(2000),
+				Options: &TransactionOptions{
+					StoreInVaultOnSuccess: true,
+				},
+				PaymentMethodToken: customer.CreditCards[0].Token,
+				Type:               TransactionTypeSale,
+			},
+			wantErr: &ProcessorError{2000, "Do Not Honor"},
+		},
 	}
 
-	t.Run("shouldWork", func(t *testing.T) {
-		t.Parallel()
-
-		transaction, err := bt.Transaction().Create(TransactionInput{
-			Amount: decimal.NewFromFloat(3),
-			Options: &TransactionOptions{
-				StoreInVaultOnSuccess: true,
-			},
-			PaymentMethodToken: customer.CreditCards[0].Token,
-			Type:               TransactionTypeSale,
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+			_, err := bt.Transaction().Create(test.txInput)
+			compareErrors(t, err, test.wantErr)
 		})
-		if err != nil {
-			t.Fatalf("unexpected err: %s", err)
-		}
-		if !transaction.Amount.Equals(decimal.NewFromFloat(3)) {
-			t.Errorf("transaction.Amount: got %s, want 3", transaction.Amount)
-		}
-	})
+	}
 
 	t.Run("duplicate", func(t *testing.T) {
 		t.Parallel()
@@ -55,75 +77,31 @@ func TestCreateTransaction(t *testing.T) {
 		}
 
 		_, err := bt.Transaction().Create(txInput)
-		gatewayErr, ok := err.(*GatewayError)
-		if !ok {
-			t.Fatalf("expected error of type GatewayError")
-		}
-		if gatewayErr == nil || gatewayErr.Message != "duplicate" {
-			t.Errorf("gateway error: got %v, want duplicate", gatewayErr)
-		}
-
-	})
-
-	t.Run("paymentFailed", func(t *testing.T) {
-		t.Parallel()
-
-		_, err = bt.Transaction().Create(TransactionInput{
-			Amount: decimal.NewFromFloat(2000),
-			Options: &TransactionOptions{
-				StoreInVaultOnSuccess: true,
-			},
-			PaymentMethodToken: customer.CreditCards[0].Token,
-			Type:               TransactionTypeSale,
-		})
-		processorErr, ok := err.(*ProcessorError)
-		if !ok {
-			t.Errorf("expected error of type ProcessorError")
-		}
-		if processorErr == nil || processorErr.Code != 2000 {
-			t.Errorf("processor error code: got %v, want 2000", processorErr)
-		}
-	})
-
-	t.Run("withoutToken", func(t *testing.T) {
-		t.Parallel()
-
-		_, err := bt.Transaction().Create(TransactionInput{
-			Amount: decimal.NewFromFloat(3),
-			Type:   TransactionTypeSale,
-		})
-		valErr, ok := err.(*ValidationError)
-		if !ok {
-			t.Errorf("expected ValidationError")
-		}
-		if valErr == nil || valErr.Code != 91508 {
-			t.Errorf("got %v, want error code 91508", valErr)
-		}
+		wantErr := &GatewayError{"duplicate"}
+		compareErrors(t, err, wantErr)
 	})
 }
 
 func TestFindTransaction(t *testing.T) {
 	t.Parallel()
 
-	t.Run("existing", func(t *testing.T) {
-		t.Parallel()
+	tests := []struct {
+		name    string
+		id      string
+		wantErr error
+	}{
+		{name: "existing", id: "bx9a7av8", wantErr: nil},
+		{name: "nonExisting", id: "nonExisting", wantErr: errors.New("404 Not Found")},
+	}
 
-		transaction, err := bt.Transaction().Find("bx9a7av8")
-		if err != nil {
-			t.Fatalf("unexpected err: %s", err)
-		}
-		if transaction.Status != TransactionStatusSettled {
-			t.Errorf("transaction.Status: got %s, want %s", transaction.Status, TransactionStatusSettled)
-		}
-	})
-
-	t.Run("nonExisting", func(t *testing.T) {
-		t.Parallel()
-
-		if _, err := bt.Transaction().Find("nonExisting"); err == nil || err.Error() != "404 Not Found" {
-			t.Errorf("got: %v, want: 404 Not Found", err)
-		}
-	})
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+			_, err := bt.Transaction().Find(test.id)
+			compareErrors(t, err, test.wantErr)
+		})
+	}
 }
 
 func TestRefundTransaction(t *testing.T) {
@@ -132,15 +110,7 @@ func TestRefundTransaction(t *testing.T) {
 	t.Run("shouldWork", func(t *testing.T) {
 		t.Parallel()
 
-		customer, err := bt.Customer().Create(CustomerInput{
-			FirstName: "first",
-			CreditCard: &CreditCardInput{
-				PaymentMethodNonce: "fake-valid-visa-nonce",
-			},
-		})
-		if err != nil {
-			t.Fatalf("unexpected err: %s", err)
-		}
+		customer := createTestCustomer(t)
 
 		transaction, err := bt.Transaction().Create(TransactionInput{
 			Amount: decimal.NewFromFloat(3.7),
@@ -192,15 +162,7 @@ func TestSettleTransaction(t *testing.T) {
 	t.Run("shouldWork", func(t *testing.T) {
 		t.Parallel()
 
-		customer, err := bt.Customer().Create(CustomerInput{
-			FirstName: "first",
-			CreditCard: &CreditCardInput{
-				PaymentMethodNonce: "fake-valid-visa-nonce",
-			},
-		})
-		if err != nil {
-			t.Fatalf("unexpected err: %s", err)
-		}
+		customer := createTestCustomer(t)
 
 		transaction, err := bt.Transaction().Create(TransactionInput{
 			Amount: decimal.NewFromFloat(3.6),
@@ -241,15 +203,7 @@ func TestVoidTransaction(t *testing.T) {
 	t.Run("shouldWork", func(t *testing.T) {
 		t.Parallel()
 
-		customer, err := bt.Customer().Create(CustomerInput{
-			FirstName: "first",
-			CreditCard: &CreditCardInput{
-				PaymentMethodNonce: "fake-valid-visa-nonce",
-			},
-		})
-		if err != nil {
-			t.Fatalf("unexpected err: %s", err)
-		}
+		customer := createTestCustomer(t)
 
 		transaction, err := bt.Transaction().Create(TransactionInput{
 			Amount: decimal.NewFromFloat(3.5),

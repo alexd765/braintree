@@ -8,6 +8,8 @@ import (
 func TestCreatePaymentMethod(t *testing.T) {
 	t.Parallel()
 
+	customer := createTestCustomer(t)
+
 	tests := []struct {
 		Name         string
 		Input        PaymentMethodInput
@@ -62,10 +64,7 @@ func TestCreatePaymentMethod(t *testing.T) {
 		test := test
 		t.Run(test.Name, func(t *testing.T) {
 			t.Parallel()
-			customer, err := bt.Customer().Create(CustomerInput{FirstName: "first"})
-			if err != nil {
-				t.Fatalf("unexpected err: %s", err)
-			}
+
 			test.Input.CustomerID = customer.ID
 			pm, err := bt.PaymentMethod().Create(test.Input)
 			if err != nil {
@@ -115,20 +114,9 @@ func TestDeletePaymentMethod(t *testing.T) {
 	t.Run("existing", func(t *testing.T) {
 		t.Parallel()
 
-		customer, err := bt.Customer().Create(CustomerInput{FirstName: "first"})
-		if err != nil {
-			t.Fatalf("unexpected err: %s", err)
-		}
+		customer := createTestCustomer(t)
 
-		pm, err := bt.PaymentMethod().Create(PaymentMethodInput{CustomerID: customer.ID, PaymentMethodNonce: "fake-valid-visa-nonce"})
-		if err != nil {
-			t.Fatalf("unexpected err: %s", err)
-		}
-		card, ok := pm.(*CreditCard)
-		if !ok {
-			t.Fatalf("payment method type: got %T, want CreditCard", pm)
-		}
-		if err := bt.PaymentMethod().Delete(card.Token); err != nil {
+		if err := bt.PaymentMethod().Delete(customer.CreditCards[0].Token); err != nil {
 			t.Errorf("unexpected err: %s", err)
 		}
 	})
@@ -191,25 +179,13 @@ func TestUpdatePaymentMethod(t *testing.T) {
 	t.Run("existing", func(t *testing.T) {
 		t.Parallel()
 
-		customer, err := bt.Customer().Create(CustomerInput{FirstName: "first"})
-		if err != nil {
-			t.Fatalf("unexpected err: %s", err)
-		}
+		customer := createTestCustomer(t)
 
-		pm, err := bt.PaymentMethod().Create(PaymentMethodInput{CustomerID: customer.ID, PaymentMethodNonce: "fake-valid-visa-nonce"})
+		pm, err := bt.PaymentMethod().Update(PaymentMethodInput{Token: customer.CreditCards[0].Token, CardholderName: "name"})
 		if err != nil {
 			t.Fatalf("unexpected err: %s", err)
 		}
 		card, ok := pm.(*CreditCard)
-		if !ok {
-			t.Fatalf("payment method type: got %T, want CreditCard", pm)
-		}
-
-		pm, err = bt.PaymentMethod().Update(PaymentMethodInput{Token: card.Token, CardholderName: "name"})
-		if err != nil {
-			t.Fatalf("unexpected err: %s", err)
-		}
-		card, ok = pm.(*CreditCard)
 		if !ok {
 			t.Fatalf("payment method type: got %T, want CreditCard", pm)
 		}
