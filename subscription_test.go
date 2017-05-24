@@ -48,6 +48,7 @@ func TestCreateSubscription(t *testing.T) {
 	t.Parallel()
 
 	customer := createTestCustomer(t)
+	twothousand := decimal.NewFromFloat(2000)
 
 	tests := []struct {
 		name                string
@@ -88,11 +89,31 @@ func TestCreateSubscription(t *testing.T) {
 			wantNextBillingDate: btdate.FromTime(time.Now().UTC().AddDate(0, 2, 0)),
 		},
 		{
+			name: "invalidTrialDurationUnit",
+			input: SubscriptionInput{
+				PlanID:             "plan1",
+				PaymentMethodToken: customer.CreditCards[0].Token,
+				TrialDuration:      1,
+				TrialDurationUnit:  "invalid",
+				TrialPeriod:        true,
+			},
+			wantErr: &ValidationError{"", 81909, "Trial Duration Unit is invalid."},
+		},
+		{
 			name: "withoutToken",
 			input: SubscriptionInput{
 				PlanID: "plan1",
 			},
 			wantErr: &ValidationError{"", 91903, "Payment method token is invalid."},
+		},
+		{
+			name: "paymentFailed",
+			input: SubscriptionInput{
+				PlanID:             "plan1",
+				PaymentMethodToken: customer.CreditCards[0].Token,
+				Price:              &twothousand,
+			},
+			wantErr: &ProcessorError{2000, "Do Not Honor"},
 		},
 	}
 
