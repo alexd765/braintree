@@ -78,7 +78,7 @@ func TestCreateSubscription(t *testing.T) {
 			wantNextBillingDate: btdate.FromTime(time.Now().UTC().AddDate(0, 0, 1)),
 		},
 		{
-			name: "trial2weeks",
+			name: "trial2months",
 			input: SubscriptionInput{
 				PlanID:             "plan1",
 				PaymentMethodToken: customer.CreditCards[0].Token,
@@ -87,6 +87,16 @@ func TestCreateSubscription(t *testing.T) {
 				TrialPeriod:        true,
 			},
 			wantNextBillingDate: btdate.FromTime(time.Now().UTC().AddDate(0, 2, 0)),
+		},
+		{
+			name: "finite",
+			input: SubscriptionInput{
+				PlanID:                "plan1",
+				PaymentMethodToken:    customer.CreditCards[0].Token,
+				NumberOfBillingCycles: 3,
+			},
+			wantStartDate:       btdate.Today(),
+			wantNextBillingDate: btdate.FromTime(time.Now().UTC().AddDate(0, 1, 0)),
 		},
 		{
 			name: "invalidTrialDurationUnit",
