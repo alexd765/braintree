@@ -48,10 +48,12 @@ func TestCreateSubscription(t *testing.T) {
 	t.Parallel()
 
 	customer := createTestCustomer(t)
+	twothousand := decimal.NewFromFloat(2000)
 
 	tests := []struct {
 		name                string
 		input               SubscriptionInput
+		wantErr             error
 		wantStartDate       btdate.Date
 		wantNextBillingDate btdate.Date
 	}{
@@ -73,11 +75,10 @@ func TestCreateSubscription(t *testing.T) {
 				TrialDurationUnit:  "day",
 				TrialPeriod:        true,
 			},
-			wantStartDate:       btdate.Date{},
 			wantNextBillingDate: btdate.FromTime(time.Now().UTC().AddDate(0, 0, 1)),
 		},
 		{
-			name: "trial2weeks",
+			name: "trial2months",
 			input: SubscriptionInput{
 				PlanID:             "plan1",
 				PaymentMethodToken: customer.CreditCards[0].Token,
@@ -85,8 +86,44 @@ func TestCreateSubscription(t *testing.T) {
 				TrialDurationUnit:  "month",
 				TrialPeriod:        true,
 			},
-			wantStartDate:       btdate.Date{},
 			wantNextBillingDate: btdate.FromTime(time.Now().UTC().AddDate(0, 2, 0)),
+		},
+		{
+			name: "finite",
+			input: SubscriptionInput{
+				PlanID:                "plan1",
+				PaymentMethodToken:    customer.CreditCards[0].Token,
+				NumberOfBillingCycles: 3,
+			},
+			wantStartDate:       btdate.Today(),
+			wantNextBillingDate: btdate.FromTime(time.Now().UTC().AddDate(0, 1, 0)),
+		},
+		{
+			name: "invalidTrialDurationUnit",
+			input: SubscriptionInput{
+				PlanID:             "plan1",
+				PaymentMethodToken: customer.CreditCards[0].Token,
+				TrialDuration:      1,
+				TrialDurationUnit:  "invalid",
+				TrialPeriod:        true,
+			},
+			wantErr: &ValidationError{"", 81909, "Trial Duration Unit is invalid."},
+		},
+		{
+			name: "withoutToken",
+			input: SubscriptionInput{
+				PlanID: "plan1",
+			},
+			wantErr: &ValidationError{"", 91903, "Payment method token is invalid."},
+		},
+		{
+			name: "paymentFailed",
+			input: SubscriptionInput{
+				PlanID:             "plan1",
+				PaymentMethodToken: customer.CreditCards[0].Token,
+				Price:              &twothousand,
+			},
+			wantErr: &ProcessorError{2000, "Do Not Honor"},
 		},
 	}
 
@@ -96,8 +133,9 @@ func TestCreateSubscription(t *testing.T) {
 			t.Parallel()
 
 			subscription, err := bt.Subscription().Create(test.input)
+			compareErrors(t, err, test.wantErr)
 			if err != nil {
-				t.Fatalf("unexpected err: %s", err)
+				return
 			}
 			if subscription.PlanID != "plan1" {
 				t.Errorf("subscription.PlanID: got: %s, want: plan1", subscription.PlanID)
@@ -110,17 +148,6 @@ func TestCreateSubscription(t *testing.T) {
 			}
 		})
 	}
-
-	t.Run("withoutToken", func(t *testing.T) {
-		_, err := bt.Subscription().Create(SubscriptionInput{PlanID: "plan1"})
-		valErr, ok := err.(*ValidationError)
-		if !ok {
-			t.Fatalf("expected ValidationError")
-		}
-		if valErr == nil || valErr.Code != 91903 {
-			t.Errorf("got %v, want error code 91903", valErr)
-		}
-	})
 }
 
 func TestFindSubscription(t *testing.T) {

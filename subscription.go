@@ -59,10 +59,11 @@ type SubscriptionInput struct {
 	BillingDayOfMonth int `xml:"billing-day-of-month,omitempty"`
 	// Descriptor
 	// Discounts
-	FirstBillingDate  *btdate.Date `xml:"first-billing-date"`
-	ID                string       `xml:"id,omitempty"`
-	MerchantAccountID string       `xml:"merchant-account-id,omitempty"`
-	NeverExpires      bool         `xml:"never-expires,omitempty"`
+	FirstBillingDate      *btdate.Date `xml:"first-billing-date"`
+	ID                    string       `xml:"id,omitempty"`
+	MerchantAccountID     string       `xml:"merchant-account-id,omitempty"`
+	NeverExpires          bool         `xml:"never-expires,omitempty"`
+	NumberOfBillingCycles int          `xml:"number-of-billing-cycles,omitempty"`
 	// Options
 	PaymentMethodNonce string           `xml:"payment-method-nonce,omitempty"`
 	PaymentMethodToken string           `xml:"payment-method-token,omitempty"`
