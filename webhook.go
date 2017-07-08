@@ -39,12 +39,14 @@ const (
 
 // WebhookNotification is an automated notifications from braintree via webhook.
 type WebhookNotification struct {
-	Kind      string          `xml:"kind"`
-	Subject   *WebhookSubject `xml:"subject"`
-	Timestamp time.Time       `xml:"timestamp"`
+	Kind      string         `xml:"kind"`
+	Subject   WebhookSubject `xml:"subject"`
+	Timestamp time.Time      `xml:"timestamp"`
 }
 
-// WebhookSubject will be implemented later.
-type WebhookSubject interface {
-	privateWebhook()
+// WebhookSubject might change in the future.
+// Handles only Subscriptions and Transactions for now.
+type WebhookSubject struct {
+	Subscription *Subscription `xml:"subscription"`
+	Transaction  *Transaction  `xml:"transaction"`
 }
